@@ -5,7 +5,7 @@
   var TEL = "tel:+12707803235";
   var EMAIL = "sonya@bluegrassdoor.com";
   var $ = function (s, c) { return (c || document).querySelector(s); };
-  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var $$ = function (s, c) { return Array.from((c || document).querySelectorAll(s)); };
 
   /* ---------- Year ---------- */
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
