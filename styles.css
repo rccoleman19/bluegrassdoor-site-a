@@ -142,7 +142,8 @@ body.nav-open { overflow: hidden; }
 .svc__img { aspect-ratio: 16 / 10; overflow: hidden; background: var(--navy); }
 .svc__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
 .svc:hover .svc__img img { transform: scale(1.04); }
-.svc__img img.svc__img--flag { object-position: 40% 42%; }
+/* Flagpoles photo: sky-widened frame (finial to just below the flag), centred, so the whole flag stays in view at every card width */
+.svc__img img.svc__img--flag { object-position: 50% 50%; }
 .svc__body { padding: 22px 22px 24px; display: flex; flex-direction: column; flex: 1; }
 .svc__body p { color: var(--muted); font-size: 1rem; }
 .svc__link { margin-top: auto; font-weight: 700; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; min-height: 44px; }
