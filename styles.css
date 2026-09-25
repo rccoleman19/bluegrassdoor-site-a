@@ -154,6 +154,16 @@ body.nav-open { overflow: hidden; }
 .svc__icon { aspect-ratio: 16 / 10; display: grid; place-items: center; background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.14), transparent 60%); border-bottom: 1px solid rgba(255,255,255,.12); }
 .svc__icon svg { width: 96px; height: 96px; stroke: #fff; stroke-width: 2.5; }
 .svc__icon svg path:nth-child(2) { fill: var(--amber); stroke: var(--amber); }
+/* Tight service cards: app.js locks each card at the height the original layout gave it, then adds
+   .is-tight. The text block shrinks and the photo (or icon) area flexes to fill the freed space,
+   so card boxes stay exactly the same size while more of each photo shows. */
+.services.is-tight .svc__img, .services.is-tight .svc__icon { flex: 1 1 0; aspect-ratio: auto; min-height: 0; }
+.services.is-tight .svc__body { flex: 0 0 auto; padding: 12px 18px 6px; }
+.services.is-tight .svc__body h3 { font-size: 1.3rem; margin-bottom: 4px; }
+.services.is-tight .svc__body p { font-size: 15px; line-height: 1.4; margin-bottom: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.services.is-tight .svc__link { margin-top: 0; }
+.svc__short, .services.is-tight .svc__full { display: none; }
+.services.is-tight .svc__short { display: inline; }
 
 /* About */
 .about { display: grid; gap: 36px; align-items: center; }

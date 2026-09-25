@@ -369,3 +369,26 @@
     var el = $(target); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 })();
+
+/* Service cards: keep every card box exactly the size the original layout gives it, then tighten
+   the text so the photo area grows into the freed space (see .is-tight in styles.css). */
+(function () {
+  var grid = document.querySelector(".services");
+  if (!grid) return;
+  var cards = Array.prototype.slice.call(grid.children), lastW = -1, raf = 0;
+  function lock(force) {
+    var w = grid.getBoundingClientRect().width;
+    if (!force && w === lastW) return;
+    lastW = w;
+    grid.classList.remove("is-tight");
+    cards.forEach(function (c) { c.style.height = ""; });
+    var hs = cards.map(function (c) { return c.getBoundingClientRect().height; });
+    cards.forEach(function (c, i) { c.style.height = hs[i] + "px"; });
+    grid.classList.add("is-tight");
+  }
+  lock(true);
+  window.addEventListener("resize", function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { lock(false); }); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { lock(true); });
+  window.addEventListener("load", function () { lock(true); });
+})();
+
