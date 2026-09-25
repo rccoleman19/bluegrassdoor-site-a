@@ -20,6 +20,7 @@
   <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px)">
   <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 761px)">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="door-preview.css?v=preview1">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -326,7 +327,7 @@
           <p class="section__lead">Tell us what you need, and we'll attach your selections to a quote request so our team can follow up with the right questions.</p>
         </div>
 
-        <div class="builder" id="door-builder">
+        <div class="builder dp-host" id="door-builder">
           <ol class="builder__progress" aria-label="Builder progress">
             <li class="is-active" data-step-dot="1"><span>1</span><em>Type</em></li>
             <li data-step-dot="2"><span>2</span><em>Material</em></li>
@@ -336,6 +337,7 @@
           </ol>
 
           <div class="builder__panel" data-step="1">
+            <h3 class="dp-start" data-door-start>Let's build a door</h3>
             <h3>What kind of door do you need?</h3>
             <div class="opts" data-field="type" role="radiogroup" aria-label="Door type"></div>
           </div>
@@ -373,6 +375,15 @@
             <button class="btn btn--accent" type="button" id="b-next" disabled>Next &rarr;</button>
             <button class="btn btn--accent" type="button" id="b-send" hidden>Request a Quote with this door</button>
           </div>
+          <aside class="dp-panel" data-door-preview="a" data-header=".header" aria-label="Door preview">
+            <div class="dp-sticky">
+              <p class="dp-title">Door preview</p>
+              <div class="dp-stage"><svg class="dp-svg" role="img" aria-label="Your door will appear here as you choose." viewBox="-22 -16 80 114" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
+              <div class="dp-caption"><p class="dp-empty">Your door will appear here as you choose.</p></div>
+              <figure class="dp-photo" hidden><img alt="" width="72" height="96" decoding="async"><figcaption></figcaption></figure>
+              <p class="dp-live" role="status" aria-live="polite"></p>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
@@ -610,6 +621,7 @@
     </figure>
   </div>
 
+  <script src="door-preview.js?v=preview1"></script>
   <script src="app.js"></script>
 </body>
 </html>

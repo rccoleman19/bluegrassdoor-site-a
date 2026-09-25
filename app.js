@@ -179,6 +179,7 @@
     btnNext.hidden = step === MAX;
     btnSend.hidden = step !== MAX;
     updateNext();
+    document.dispatchEvent(new CustomEvent("doorbuilder:change", { detail: { step: step, state: state, rows: summaryRows() } })); // live door preview hook (read-only)
   }
   function sizeText() {
     if (state.size === "custom") {
