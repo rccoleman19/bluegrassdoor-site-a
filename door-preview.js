@@ -296,7 +296,7 @@
       var backset = look === "aluminum-glass" ? 1.6 : look === "frameless-glass" ? 3.5 : 2.75;
       var bx = edge + dir * backset;
       var leverY = has.panic ? 35.5 : 38;
-      if (has.kickplate) hw.push(grp("kickplate", rect(L.x + 1, H - 10.5, L.w - 2, 10, "url(#dpSteel)", "#7d8591", 0.3)));
+      if (has.kickplate && look !== "frameless-glass") hw.push(grp("kickplate", rect(L.x + 1, H - 10.5, L.w - 2, 10, "url(#dpSteel)", "#7d8591", 0.3)));
       if (has.panic && !slide) hw.push(grp("panic", drawPanic(L, n, H)));
       if (has.panic && slide) hw.push(grp("panic", rect(L.x + 4, 38, L.w - 8, 2.4, METAL.fill, METAL.stroke, 0.35)));
       if (has.lever) {
@@ -615,7 +615,7 @@
           type: st.type ? { id: st.type, label: rows["Door type"] } : null,
           material: st.material ? { id: st.material, label: rows["Material"] } : null,
           size: st.size ? { id: st.size, label: st.size === "custom" ? customLabel() : rows["Size"], w: w && w.value, h: h && h.value, qty: q && q.value } : null,
-          hardware: (st.hardware || []).map(function (x) { return { id: x, label: x }; })
+          hardware: (st.hardware || []).map(function (x, i) { return { id: x, label: (d.hwLabels && d.hwLabels[i]) || x }; })
         };
       }
       function customLabel() {

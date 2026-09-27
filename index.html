@@ -17,10 +17,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px)">
-  <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 761px)">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="door-preview.css?v=preview1">
+  <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)">
+  <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 1024px), (min-width: 761px) and (min-height: 541px), (min-width: 761px) and (orientation: portrait)">
+  <link rel="stylesheet" href="styles.css?v=rules1">
+  <link rel="stylesheet" href="door-preview.css?v=rules1">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -105,8 +105,8 @@
     <!-- HERO -->
     <section class="hero" aria-labelledby="hero-title">
       <picture class="hero__media">
-        <source media="(max-width: 760px)" srcset="images/team-in-front-of-shop.jpg">
-        <img src="images/van-and-shop-building-wide.jpg" width="1200" height="630" alt="The Bluegrass Commercial Door &amp; More van parked in front of the company's blue shop building in Bowling Green, Kentucky">
+        <source media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)" srcset="images/team-in-front-of-shop.jpg">
+        <img src="images/van-and-shop-building-wide.jpg" width="1200" height="630" alt="The Bluegrass Commercial Door &amp; More van parked in front of the company's blue shop building in Bowling Green, Kentucky" data-alt-team="The Bluegrass Commercial Door &amp; More team in blue company shirts in front of the shop in Bowling Green, Kentucky">
       </picture>
       <div class="hero__shade" aria-hidden="true"></div>
       <div class="wrap hero__content">
@@ -321,7 +321,7 @@
       <div class="wrap">
         <div class="section__head section__head--center">
           <p class="eyebrow eyebrow--light">Door builder</p>
-          <h2 id="builder-title">Build your door in four quick steps</h2>
+          <h2 id="builder-title">Build your door in a few quick steps</h2>
           <p class="section__lead">Tell us what you need, and we'll attach your selections to a quote request so our team can follow up with the right questions.</p>
         </div>
 
@@ -362,11 +362,13 @@
           <div class="builder__panel" data-step="5" hidden>
             <h3>Your door summary</h3>
             <dl class="summary" id="builder-summary"></dl>
-            <label class="builder__notes">Anything else we should know? <span>(optional)</span>
+            <label class="builder__notes"><span class="builder__notes-label">Anything else we should know? <span>(optional)</span></span>
               <textarea id="builder-notes" rows="3" placeholder="e.g. replacing an existing storefront door, need it before opening day"></textarea>
             </label>
           </div>
 
+          <div class="builder__notice" id="builder-notice" role="status" aria-live="polite" hidden></div>
+          <p class="sr-only" id="builder-live" aria-live="polite"></p>
           <div class="builder__nav">
             <button class="btn btn--text" type="button" id="b-back" hidden>&larr; Back</button>
             <button class="btn btn--text" type="button" id="b-restart" hidden>Start over</button>
@@ -619,7 +621,8 @@
     </figure>
   </div>
 
-  <script src="door-preview.js?v=preview1"></script>
-  <script src="app.js"></script>
+  <script src="door-preview.js?v=rules1"></script>
+  <script src="builder-rules.js?v=rules1"></script>
+  <script src="app.js?v=rules1"></script>
 </body>
 </html>

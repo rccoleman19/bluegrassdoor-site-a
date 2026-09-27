@@ -7,6 +7,14 @@
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.from((c || document).querySelectorAll(s)); };
 
+  /* ---------- Hero photo alt text follows the photo actually shown (crew photo on phones, van photo on wider screens) ---------- */
+  var heroImg = $(".hero__media img");
+  if (heroImg) {
+    var vanAlt = heroImg.getAttribute("alt"), teamAlt = heroImg.getAttribute("data-alt-team");
+    var syncAlt = function () { var src = heroImg.currentSrc || heroImg.src || ""; heroImg.alt = /team-in-front-of-shop/.test(src) ? teamAlt : vanAlt; };
+    heroImg.addEventListener("load", syncAlt); if (heroImg.complete) syncAlt();
+  }
+
   /* ---------- Year ---------- */
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
 
@@ -137,15 +145,57 @@
   var state = { type: null, material: null, size: null, hardware: [] };
   var step = 1, MAX = 5;
   var btnNext = $("#b-next"), btnBack = $("#b-back"), btnSend = $("#b-send"), btnRestart = $("#b-restart");
+  var notice = $("#builder-notice"), lastAction = "";
+  var R = window.BuilderRules; // hardware compatibility rules (builder-rules.js)
 
-  function optHTML(value, title, sub, icon, multi, selected) {
-    return '<button type="button" class="opt" ' + (multi ? 'aria-pressed="' + selected + '"' : 'role="radio" aria-checked="' + selected + '"') + ' data-value="' + value + '">' +
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function optHTML(value, title, sub, icon, multi, selected, st) {
+    st = st || {};
+    var cls = "opt" + (st.disabled ? " is-disabled" : "") + (st.locked ? " is-locked" : "");
+    var aria = multi ? 'aria-pressed="' + selected + '"' : 'role="radio" aria-checked="' + selected + '"';
+    if (st.disabled || st.locked) aria += ' aria-disabled="true"';
+    var why = st.reason ? '<span class="opt__why opt__why--' + (st.disabled ? "no" : "req") + '">' + esc(st.reason) + "</span>" : st.note ? '<span class="opt__why opt__why--info">' + esc(st.note) + "</span>" : "";
+    var badge = st.locked ? '<span class="opt__badge">Required</span>' : "";
+    return '<button type="button" class="' + cls + '" ' + aria + ' data-value="' + value + '">' +
       '<span class="opt__icon">' + (ICON[icon] || ICON.door) + '</span>' +
-      '<span class="opt__text"><strong>' + title + '</strong><small>' + sub + '</small></span><span class="opt__tick"></span></button>';
+      '<span class="opt__text"><strong>' + esc(title) + '</strong>' + badge + '<small>' + esc(sub) + '</small>' + why + '</span><span class="opt__tick"></span></button>';
   }
   function labelOf(list, v, idx) { for (var i = 0; i < list.length; i++) { var it = list[i]; var key = Array.isArray(it) ? it[0] : it.v; if (key === v) return Array.isArray(it) ? it[idx || 1] : it.t; } return v; }
 
+  /* rules adapter: builder state <-> rules selection */
+  function sel() {
+    return { type: state.type, material: state.material, size: state.size, hardware: R ? R.hwKeys(state) : [],
+      customW: state.size === "custom" ? $("#size-w").value : "", customH: state.size === "custom" ? $("#size-h").value : "" };
+  }
+  function hwList() { return state.type === "barn" ? HW_BARN : HW_STD; }
+  function hwStatus(label) { return R ? R.option(sel(), R.KEY_OF[label] || label, step >= 4) : { title: label }; }
+  function hwTitle(label) { return R ? R.label(sel(), R.KEY_OF[label] || label).title : label; }
+  /* keep the selection valid after every change: drop what no longer fits, add what's required */
+  function applyRules() {
+    if (!R) return;
+    var res = R.normalize(sel(), { atHardware: step >= 4 });
+    if (!res.changes.length) return;
+    state.hardware = res.sel.hardware.map(function (k) { return R.HW[k] || k; });
+    // removals are shown in the notice; additions are shown on the option itself ("Required") and announced
+    lastAction = res.changes.filter(function (c) { return c.action === "removed"; }).map(function (c) {
+      return "We took off the " + R.HW[c.key].toLowerCase() + ": " + c.say.replace(/^Not [^:]+: /, "");
+    }).join(" ");
+    var added = res.changes.filter(function (c) { return c.action === "added"; }).map(function (c) { return c.say; }).join(" ");
+    if (added) { var lv = $("#builder-live"); lv.textContent = ""; setTimeout(function () { lv.textContent = added; }, 60); }
+  }
+  function blockingNow() { return R && step >= 4 && state.hardware.length ? R.evaluate(sel()).blocking : []; }
+  function showNotice() {
+    var need = step === 4 ? blockingNow().filter(function (r) { return r.fix && r.fix.oneOf; }) : [];
+    var html = "";
+    if (lastAction) html += '<p class="builder__notice-msg">' + esc(lastAction) + "</p>";
+    if (need.length) html += '<p class="builder__notice-need">' + esc(need[0].say) + "</p>";
+    notice.innerHTML = html;
+    notice.hidden = !html;
+    notice.classList.toggle("is-need", !!need.length);
+  }
+
   function renderStep() {
+    applyRules();
     var box;
     if (step === 1) {
       box = $('[data-field="type"]');
@@ -158,16 +208,23 @@
     }
     if (step === 3) {
       box = $('[data-field="size"]');
-      box.innerHTML = SIZES.map(function (s) { return optHTML(s[0], s[1], s[2], s[3], false, state.size === s[0]); }).join("");
+      box.innerHTML = SIZES.map(function (z) {
+        var n = R ? R.sizeNote(sel(), z[0]) : "";
+        return optHTML(z[0], z[1], z[2], z[3], false, state.size === z[0], n && state.size === z[0] ? { note: n } : null);
+      }).join("");
       $("#custom-size").hidden = state.size !== "custom";
     }
     if (step === 4) {
       box = $('[data-field="hardware"]');
-      var hw = state.type === "barn" ? HW_BARN : HW_STD;
-      box.innerHTML = hw.map(function (h) { return optHTML(h[0], h[0], h[1], h[2], true, state.hardware.indexOf(h[0]) > -1); }).join("");
+      box.innerHTML = hwList().map(function (h) {
+        var st = hwStatus(h[0]);
+        return optHTML(h[0], st.title || h[0], st.sub || h[1], h[2], true, state.hardware.indexOf(h[0]) > -1, st);
+      }).join("");
     }
     if (step === 5) {
-      $("#builder-summary").innerHTML = summaryRows().map(function (r) { return "<div><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>"; }).join("");
+      $("#builder-summary").innerHTML = summaryRows().map(function (r) {
+        return "<div" + (r[2] ? ' class="summary__notes"' : "") + "><dt>" + r[0] + "</dt><dd>" + (r[2] ? "<ul>" + r[2].map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : esc(r[1])) + "</dd></div>";
+      }).join("");
     }
     $$(".builder__panel").forEach(function (p) { p.hidden = +p.getAttribute("data-step") !== step; });
     $$("[data-step-dot]").forEach(function (d) {
@@ -179,7 +236,7 @@
     btnNext.hidden = step === MAX;
     btnSend.hidden = step !== MAX;
     updateNext();
-    document.dispatchEvent(new CustomEvent("doorbuilder:change", { detail: { step: step, state: state, rows: summaryRows() } })); // live door preview hook (read-only)
+    document.dispatchEvent(new CustomEvent("doorbuilder:change", { detail: { step: step, state: state, rows: summaryRows(), hwLabels: state.hardware.map(hwTitle) } })); // live door preview hook (read-only)
   }
   function sizeText() {
     if (state.size === "custom") {
@@ -190,25 +247,33 @@
   }
   function summaryRows() {
     var mats = (MATERIALS[state.type] || []).concat([["recommend", "Recommend for me"]]);
-    return [
+    var rows = [
       ["Door type", labelOf(TYPES, state.type)],
       ["Material", labelOf(mats, state.material)],
       ["Size", sizeText()],
-      ["Hardware", state.hardware.length ? state.hardware.join(", ") : "None selected"]
+      ["Hardware", state.hardware.length ? state.hardware.map(hwTitle).join(", ") : "None selected"]
     ];
+    var notes = R && state.type ? R.notes(sel()) : [];
+    if (notes.length) rows.push(["Good to know", notes.join(" "), notes]);
+    return rows;
   }
   function updateNext() {
     var ok = false;
     if (step === 1) ok = !!state.type;
     if (step === 2) ok = !!state.material;
     if (step === 3) ok = !!state.size && (state.size !== "custom" || ($("#size-w").value && $("#size-h").value));
-    if (step === 4) ok = state.hardware.length > 0;
+    if (step === 4) ok = state.hardware.length > 0 && blockingNow().length === 0;
     btnNext.disabled = !ok;
+    showNotice();
   }
   $("#door-builder").addEventListener("click", function (e) {
     var opt = e.target.closest(".opt"); if (!opt) return;
     var field = opt.parentElement.getAttribute("data-field"), v = opt.getAttribute("data-value");
+    lastAction = "";
     if (field === "hardware") {
+      var st = hwStatus(v);
+      if (st.disabled) { lastAction = st.reason; showNotice(); return; }   // not a dead end: the reason says what to do instead
+      if (st.locked) { lastAction = st.lockReason; showNotice(); return; }
       var i = state.hardware.indexOf(v);
       if (v === "Recommend for me") state.hardware = i > -1 ? [] : ["Recommend for me"];
       else {
@@ -227,14 +292,17 @@
     var top = $("#door-builder").getBoundingClientRect().top + window.scrollY - (header.offsetHeight + 12);
     if (window.scrollY > top) window.scrollTo({ top: top, behavior: "smooth" });
   }
-  btnNext.addEventListener("click", function () { if (!btnNext.disabled && step < MAX) { step++; renderStep(); scrollBuilderTop(); } });
-  btnBack.addEventListener("click", function () { if (step > 1) { step--; renderStep(); scrollBuilderTop(); } });
+  btnNext.addEventListener("click", function () { if (!btnNext.disabled && step < MAX) { lastAction = ""; step++; renderStep(); scrollBuilderTop(); } });
+  btnBack.addEventListener("click", function () { if (step > 1) { lastAction = ""; step--; renderStep(); scrollBuilderTop(); } });
   btnRestart.addEventListener("click", function () {
-    state = { type: null, material: null, size: null, hardware: [] }; $("#builder-notes").value = ""; step = 1; renderStep(); scrollBuilderTop();
+    state = { type: null, material: null, size: null, hardware: [] }; $("#builder-notes").value = ""; step = 1; lastAction = ""; renderStep(); scrollBuilderTop();
+    document.dispatchEvent(new CustomEvent("doorbuilder:restart"));
   });
 
   var attached = null;
   btnSend.addEventListener("click", function () {
+    // the quote hand-off only ever carries a valid door; anything else goes back to the hardware step
+    if (R && (!state.hardware.length || R.evaluate(sel()).blocking.length)) { step = 4; renderStep(); scrollBuilderTop(); return; }
     var rows = summaryRows();
     var notes = $("#builder-notes").value.trim();
     attached = rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + (notes ? "\nNotes: " + notes : "");
