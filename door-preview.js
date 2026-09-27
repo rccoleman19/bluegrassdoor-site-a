@@ -251,7 +251,7 @@
     return s;
   }
 
-  function renderDoor(cfg) {
+  function renderDoor(cfg, bare) {
     var o = cfg.opening, W = o.widthIn, H = o.heightIn, n = o.leaves;
     var slide = cfg.operation === "slide", has = cfg.hardware.has, look = cfg.material.look, fin = cfg.material.finish;
     var F = look === "frameless-glass" ? 1.2 : look === "aluminum-glass" ? 1.75 : 2;
@@ -259,7 +259,7 @@
     if (slide) { if (n === 1) { ml = 10 + (has.keypad ? 2 : 0); mr = W + 9; } else { ml = W / 2 + 9 + (has.keypad ? 4 : 0); mr = W / 2 + 9; } mt = 13; }
     var x0 = -ml, x1 = W + mr, top = -mt, bottom = H + (o.sizeChosen ? 14 : 6);
     var out = [];
-    out.push(grp("wall", wallContext(cfg, x0, x1, top, H)));
+    if (!bare) out.push(grp("wall", wallContext(cfg, x0, x1, top, H)));
 
     /* frame / casing */
     var frameCol = look === "aluminum-glass" || look === "frameless-glass" ? FINISH["aluminum-glass"].face : cfg.setting === "exterior" ? "#8c96a3" : "#f7f5f0";
@@ -313,7 +313,7 @@
     });
     if (has.closer && slide) hw.push(grp("closer", drawDampers(W, n)));
     if (has.softClose) hw.push(grp("softClose", drawDampers(W, n)));
-    if (has.keypad) {
+    if (has.keypad && !bare) {
       var kx = !slide ? W + F + 2.5 : n === 1 ? -8.5 : -W / 2 - 8;
       hw.push(grp("keypad", rect(kx, 41, 3.2, 5.6, "#2b3038", "#14171b", 0.3) + rect(kx + 0.5, 41.6, 2.2, 1.3, "#6fd28a") +
         [0, 1, 2].map(function (r) { return [0, 1].map(function (c) { return circ(kx + 1 + c * 1.2, 43.7 + r * 0.8, 0.28, "#aeb6c1"); }).join(""); }).join("")));
@@ -324,6 +324,10 @@
     });
     out = out.concat(hw);
 
+    if (bare) { // just the opening: the frame's outside edge (a sliding door: the leaf and its track)
+      var vb = slide ? [-2, -10.6, W + 4, H + 10.1] : [-F, -F, W + 2 * F, H + F];
+      return { viewBox: vb, body: out.join("") };
+    }
     /* dimension */
     if (o.sizeChosen) {
       var dy = H + 9.5, txt = o.sizeKnown ? fmtFtIn(W) + " × " + fmtFtIn(H) : "Size to be measured";
@@ -500,6 +504,18 @@
     }
     if (cfg.opening.sizeChosen) s += grp("dim", '<text x="' + r1((count - 1) * spacing / 2 + 15) + '" y="' + (H + 13) + '" text-anchor="middle" class="dp-dimtext" font-size="' + r1((x1 - x0) / 16) + '">' + (count === 2 ? "Two flagpoles" : "One flagpole") + "</text>");
     return { viewBox: [x0, -20, x1 - x0, H + 36], body: s };
+  }
+
+  /* The door alone (no wall, no dimension line) as a standalone SVG file, for the "See it on your building" photo step.
+     Same config, same drawing code as the preview panel. Returns null for flagpoles or when no door type is chosen. */
+  function openingSVG(cfg, pxHeight) {
+    if (!cfg || cfg.empty || cfg.product !== "door") return null;
+    var r = renderDoor(cfg, true), vb = r.viewBox, h = Math.round(pxHeight || 1200), w = Math.round(h * vb[2] / vb[3]);
+    var body = r.body.replace(/class="dp-part dp-dim"/g, 'class="dp-part dp-dim" opacity="0.55"');
+    return {
+      width: w, height: h, aspect: vb[2] / vb[3],
+      svg: '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="' + vb.map(r1).join(" ") + '" preserveAspectRatio="none">' + DEFS + body + "</svg>"
+    };
   }
 
   var DEFS = '<defs>' +
@@ -692,7 +708,7 @@
     root.DoorPreview.panel = panel;
   }
 
-  root.DoorPreview = { buildConfig: buildConfig, render: render, parseLength: parseLength, init: init, current: null };
+  root.DoorPreview = { buildConfig: buildConfig, render: render, openingSVG: openingSVG, parseLength: parseLength, init: init, current: null };
   // Scripts sit at the end of <body>, so the panel usually exists already: start at once so the
   // builder's first "doorbuilder:change" event is not missed. Otherwise wait for the DOM.
   if (document.querySelector("[data-door-preview]")) init(); else document.addEventListener("DOMContentLoaded", init);
