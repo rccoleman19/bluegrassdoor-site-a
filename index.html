@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)">
   <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 1024px), (min-width: 761px) and (min-height: 541px), (min-width: 761px) and (orientation: portrait)">
-  <link rel="stylesheet" href="styles.css?v=viz1">
+  <link rel="stylesheet" href="styles.css?v=viz1-cp1">
   <link rel="stylesheet" href="door-preview.css?v=viz1">
   <link rel="stylesheet" href="door-visualize.css?v=viz1">
   <script type="application/ld+json">
@@ -386,7 +386,7 @@
           </div>
           <aside class="dp-panel" data-door-preview="a" data-header=".header" aria-label="Door preview">
             <div class="dp-sticky">
-              <p class="dp-title">Door preview</p>
+              <div class="dp-head"><p class="dp-title">Door preview</p><button type="button" class="dp-ask" data-open-chat aria-label="Open help chat"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Questions?</button></div>
               <div class="dp-stage"><svg class="dp-svg" role="img" aria-label="Your door will appear here as you choose." viewBox="-22 -16 80 114" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
               <div class="dp-caption"><p class="dp-empty">Your door will appear here as you choose.</p></div>
               <figure class="dp-photo" hidden><img alt="" width="72" height="96" decoding="async"><figcaption></figcaption></figure>
@@ -633,6 +633,7 @@
   <script src="door-preview.js?v=dim1"></script>
   <script src="builder-rules.js?v=viz1"></script>
   <script src="app.js?v=viz1"></script>
+  <script src="chat-place.js?v=cp1"></script>
   <script src="door-visualize.js?v=viz1"></script>
 </body>
 </html>
