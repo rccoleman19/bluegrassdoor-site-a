@@ -99,6 +99,8 @@
     return Math.max(12, Math.min(240, Math.round(v)));
   }
 
+  /* The custom width/height boxes are in inches: a plain number there is inches (12 is 12", not 12'); anything else goes through parseLength. */
+  function inchField(v) { var t = String(v == null ? "" : v).trim(); return /^\d+(?:\.\d+)?$/.test(t) ? Math.max(12, Math.min(240, Math.round(+t))) : parseLength(t); }
   function clean(label) { return String(label || "").replace(/\s+/g, " ").trim(); }
 
   /* ------------------------------------------------------------------ */
@@ -159,7 +161,7 @@
       else if (/^pair|pair\b/.test(id)) { o.widthIn = 72; o.heightIn = 84; o.leaves = 2; o.sizeKnown = true; }
       else if (/^single/.test(id)) { o.widthIn = 36; o.heightIn = 84; o.sizeKnown = true; }
       else if (/custom/.test(id)) {
-        var w = parseLength(z.w), h = parseLength(z.h);
+        var w = inchField(z.w), h = inchField(z.h);
         if (w) o.widthIn = w; if (h) o.heightIn = h;
         o.sizeKnown = !!(w && h);
         o.leaves = o.widthIn > 54 ? 2 : 1;
@@ -257,7 +259,7 @@
     var F = look === "frameless-glass" ? 1.2 : look === "aluminum-glass" ? 1.75 : 2;
     var ml = 10, mr = 10 + (has.keypad ? 8 : 0), mt = 9;
     if (slide) { if (n === 1) { ml = 10 + (has.keypad ? 2 : 0); mr = W + 9; } else { ml = W / 2 + 9 + (has.keypad ? 4 : 0); mr = W / 2 + 9; } mt = 13; }
-    var x0 = -ml, x1 = W + mr, top = -mt, bottom = H + (o.sizeChosen ? 14 : 6);
+    var x0 = -ml, x1 = W + mr, top = -mt, bottom = H + (o.sizeChosen ? 14 : 6), left = x0;
     var out = [];
     if (!bare) out.push(grp("wall", wallContext(cfg, x0, x1, top, H)));
 
@@ -328,13 +330,26 @@
       var vb = slide ? [-2, -10.6, W + 4, H + 10.1] : [-F, -F, W + 2 * F, H + F];
       return { viewBox: vb, body: out.join("") };
     }
-    /* dimension */
+    /* dimensions, drawn like an elevation: width on a horizontal line under the door, height on a vertical
+       line beside the wall (text turned to read bottom-to-top). Sizes are in inches, so text and gaps scale with the drawing. */
     if (o.sizeChosen) {
-      var dy = H + 9.5, txt = o.sizeKnown ? fmtFtIn(W) + " × " + fmtFtIn(H) : "Size to be measured";
-      out.push(grp("dim", (o.sizeKnown ? line(0, dy, W, dy, "currentColor", 0.35) + line(0, dy - 1.5, 0, dy + 1.5, "currentColor", 0.35) + line(W, dy - 1.5, W, dy + 1.5, "currentColor", 0.35) : "") +
-        '<text x="' + r1(W / 2) + '" y="' + r1(dy + (o.sizeKnown ? -1.4 : 1)) + '" text-anchor="middle" class="dp-dimtext" font-size="' + r1(Math.max(4.2, (x1 - x0) / 26)) + '">' + txt + (o.qty > 1 ? "  (qty " + o.qty + ")" : "") + "</text>"));
+      var fs = Math.max(5.6, (x1 - x0) / 26, (H + mt) / 20), cap = 0.72 * fs, tk = Math.max(1.5, fs * 0.28), sw = r1(0.35 * Math.max(1, fs / 5.6));
+      var dimTxt = function (x, y, cls, txt, extra) { return '<text x="' + r1(x) + '" y="' + r1(y) + '" text-anchor="middle" class="dp-dimtext ' + cls + '" font-size="' + r1(fs) + '"' + (extra || "") + ">" + txt + "</text>"; };
+      var qty = o.qty > 1 ? "  (qty " + o.qty + ")" : "", dimS = "";
+      if (o.sizeKnown) {
+        var ty = H + 5 + cap, dy = ty + 1.4;                       // width: text sits just above its line
+        dimS += line(0, dy, W, dy, "currentColor", sw) + line(0, dy - tk, 0, dy + tk, "currentColor", sw) + line(W, dy - tk, W, dy + tk, "currentColor", sw);
+        dimS += dimTxt(W / 2, ty, "dp-dimtext--w", fmtFtIn(W) + qty, ' data-dim="width"');
+        var vx = x0 - tk - 2, tx = vx - 1.4, cy = H / 2;           // height: line outside the wall, floor to the head of the opening
+        dimS += line(vx, 0, vx, H, "currentColor", sw) + line(vx - tk, 0, vx + tk, 0, "currentColor", sw) + line(vx - tk, H, vx + tk, H, "currentColor", sw);
+        dimS += dimTxt(tx, cy, "dp-dimtext--h", fmtFtIn(H), ' data-dim="height" transform="rotate(-90 ' + r1(tx) + " " + r1(cy) + ')"');
+        left = tx - 1.15 * fs - 2.2; bottom = Math.max(bottom, dy + tk + 1.5);
+      } else {
+        dimS += '<text x="' + r1(W / 2) + '" y="' + r1(H + 10.5) + '" text-anchor="middle" class="dp-dimtext" font-size="' + r1(Math.max(4.2, (x1 - x0) / 26)) + '">Size to be measured' + qty + "</text>";
+      }
+      out.push(grp("dim", dimS));
     }
-    return { viewBox: [x0, top, x1 - x0, bottom - top], body: out.join("") };
+    return { viewBox: [left, top, x1 - left, bottom - top], body: out.join("") };
   }
 
   function fmtFtIn(inches) { var f = Math.floor(inches / 12), i = Math.round(inches - f * 12); return f + "' " + i + '"'; }
