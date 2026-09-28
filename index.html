@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)">
   <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 1024px), (min-width: 761px) and (min-height: 541px), (min-width: 761px) and (orientation: portrait)">
-  <link rel="stylesheet" href="styles.css?v=viz1-cp1">
+  <link rel="stylesheet" href="styles.css?v=cc1">
   <link rel="stylesheet" href="door-preview.css?v=viz1">
   <link rel="stylesheet" href="door-visualize.css?v=viz1">
   <script type="application/ld+json">
@@ -363,6 +363,28 @@
           <div class="builder__panel" data-step="5" hidden>
             <h3>Your door summary</h3>
             <dl class="summary" id="builder-summary"></dl>
+              <section class="codes" id="codes" aria-labelledby="codes-title">
+                <h3 class="codes__title" id="codes-title"><span class="codes__i" aria-hidden="true">i</span>Local &amp; state code: worth checking</h3>
+                <p class="codes__lead">A few things your inspector may look at for this door, each with the code section and a link to the source. Worth checking with your inspector or our office. <strong>Suggestions only. Your local inspector has the final say.</strong></p>
+                <div class="codes__ctl">
+                  <div class="codes__field">
+                    <label for="code-juris">Where&rsquo;s the job?</label>
+                    <select id="code-juris"></select>
+                    <p class="codes__hint" id="code-juris-hint">Most of our jobs are in Warren County, KY. Change it if your project is elsewhere.</p>
+                  </div>
+                  <div class="codes__field">
+                    <span class="codes__label" id="code-use-label">Business or home?</span>
+                    <div class="codes__use" role="group" aria-labelledby="code-use-label">
+                      <button type="button" data-use="business" aria-pressed="false">Business</button>
+                      <button type="button" data-use="home" aria-pressed="false">Home</button>
+                    </div>
+                    <p class="codes__hint" id="code-use-hint"></p>
+                  </div>
+                </div>
+                <ul class="codes__list" id="code-list"></ul>
+                <button type="button" class="btn btn--text codes__more" id="code-more" aria-controls="code-list" hidden></button>
+                <p class="sr-only" id="code-live" aria-live="polite"></p>
+              </section>
             <div class="viz-entry" data-viz-entry hidden>
               <svg class="viz-entry__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8.5 5l1.5-2h4l1.5 2"/></svg>
               <div class="viz-entry__text">
@@ -632,8 +654,9 @@
 
   <script src="door-preview.js?v=dim1"></script>
   <script src="builder-rules.js?v=viz1"></script>
-  <script src="app.js?v=viz1"></script>
-  <script src="chat-place.js?v=cp1"></script>
+  <script src="code-checks.js?v=cc1"></script>
+  <script src="app.js?v=cc1"></script>
+  <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz1"></script>
 </body>
 </html>

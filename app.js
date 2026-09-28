@@ -148,6 +148,7 @@
   var notice = $("#builder-notice"), lastAction = "";
   var R = window.BuilderRules; // hardware compatibility rules (builder-rules.js)
 
+  var CC = window.CodeChecks, code = { juris: CC ? CC.DEFAULT_JURIS : "warren", picked: false, fromAddr: false, use: null, all: false };
   function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function optHTML(value, title, sub, icon, multi, selected, st) {
     st = st || {};
@@ -225,6 +226,7 @@
       $("#builder-summary").innerHTML = summaryRows().map(function (r) {
         return "<div" + (r[2] ? ' class="summary__notes"' : "") + "><dt>" + r[0] + "</dt><dd>" + (r[2] ? "<ul>" + r[2].map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : esc(r[1])) + "</dd></div>";
       }).join("");
+      renderCodes();
     }
     $$(".builder__panel").forEach(function (p) { p.hidden = +p.getAttribute("data-step") !== step; });
     $$("[data-step-dot]").forEach(function (d) {
@@ -299,14 +301,57 @@
     document.dispatchEvent(new CustomEvent("doorbuilder:restart"));
   });
 
-  var attached = null;
+  /* ---------- local & state code suggestions (code-checks.js). Optional: nothing here blocks the quote ---------- */
+  function codeDoor() { return { type: state.type, material: state.material, size: state.size, hardware: state.hardware.slice(), cw: $("#size-w").value, ch: $("#size-h").value, loc: "" }; }
+  function codeResult() { return CC.evaluate([codeDoor()], { juris: code.juris, use: code.use }); }
+  var SHOW_FIRST = 3;
+  function renderCodes() {
+    var box = $("#codes"); if (!box) return;
+    if (!CC || !state.type) { box.hidden = true; return; }
+    box.hidden = false;
+    var sel = $("#code-juris");
+    if (!sel.options.length) sel.innerHTML = CC.JURIS.map(function (j) { return '<option value="' + j.v + '">' + esc(j.t) + "</option>"; }).join("");
+    sel.value = code.juris;
+    $("#code-juris-hint").textContent = code.fromAddr && !code.picked ? "Picked from the project location you typed. Change it if that's not right." :
+      code.juris === CC.DEFAULT_JURIS ? "Most of our jobs are in Warren County, KY. Change it if your project is elsewhere." : "Change it any time.";
+    var res = codeResult();
+    $$(".codes__use button").forEach(function (b) { b.setAttribute("aria-pressed", code.use === b.getAttribute("data-use") ? "true" : "false"); });
+    $("#code-use-hint").textContent = code.use ? "" : res.useInferred ? "Showing business notes because of the door type. Tap Home if it's a house." : "Not sure? We're showing notes for both. Tap Business or Home to narrow them down.";
+    var many = res.items.length > SHOW_FIRST + 1 && !code.all;
+    $("#code-list").innerHTML = res.items.map(function (it, k) {
+      return '<li data-code="' + esc(it.id) + '"' + (many && k >= SHOW_FIRST ? " hidden" : "") + ">" + esc(it.text) +
+        '<span class="codes__src">Source: ' + it.sources.map(function (x) { return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.cite) + "</a>"; }).join(" &middot; ") + "</span></li>";
+    }).join("");
+    var more = $("#code-more");
+    more.hidden = res.items.length <= SHOW_FIRST + 1;
+    more.textContent = code.all ? "Show fewer" : "Show all " + res.items.length + " suggestions";
+    more.setAttribute("aria-expanded", code.all ? "true" : "false");
+  }
+  function codeSay(msg) { var el = $("#code-live"); el.textContent = ""; setTimeout(function () { el.textContent = msg; }, 60); }
+  if ($("#codes") && CC) {
+    $("#code-juris").addEventListener("change", function () { code.juris = this.value; code.picked = true; renderCodes(); refreshAttached(); codeSay("Suggestions updated for " + CC.jurisOf(code.juris).t + "."); });
+    $(".codes__use").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-use]"); if (!b) return;
+      var u = b.getAttribute("data-use"); code.use = code.use === u ? null : u; renderCodes(); refreshAttached();
+      codeSay(code.use ? "Showing suggestions for a " + (code.use === "home" ? "home" : "business") + "." : "Showing suggestions for both.");
+    });
+    $("#code-more").addEventListener("click", function () { code.all = !code.all; renderCodes(); });
+  }
+  function codeText() { return CC && state.type ? CC.shortText(codeResult(), 1) : ""; }
+
+  var attached = null, attachedBase = "";
+  function refreshAttached() {
+    if (attached === null) return;
+    var ct = codeText(); attached = attachedBase + (ct ? "\n\n" + ct : "");
+    $("#builder-attach-text").textContent = attached;
+  }
   btnSend.addEventListener("click", function () {
     // the quote hand-off only ever carries a valid door; anything else goes back to the hardware step
     if (R && (!state.hardware.length || R.evaluate(sel()).blocking.length)) { step = 4; renderStep(); scrollBuilderTop(); return; }
     var rows = summaryRows();
     var notes = $("#builder-notes").value.trim();
-    attached = rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + (notes ? "\nNotes: " + notes : "");
-    $("#builder-attach-text").textContent = attached;
+    attachedBase = rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + (notes ? "\nNotes: " + notes : "");
+    attached = ""; refreshAttached();
     $("#builder-attach").hidden = false;
     var t = TYPES.filter(function (o) { return o.v === state.type; })[0];
     if (t) setSelect(qType, t.project);
@@ -321,6 +366,14 @@
 
   /* ---------- Quote form ---------- */
   var form = $("#quote-form"), done = $("#quote-done");
+  // until the customer picks a location in the code suggestions, the project location they type can set it
+  $("#q-city").addEventListener("input", function () {
+    if (!CC || code.picked) return;
+    var g = CC.guessJuris(this.value);
+    if (g) { code.juris = g; code.fromAddr = true; } else if (code.fromAddr) { code.juris = CC.DEFAULT_JURIS; code.fromAddr = false; }
+    if (step === MAX) renderCodes();
+    refreshAttached();
+  });
   function validField(el) {
     var v = el.value.trim(), ok = !!v;
     if (ok && el.type === "email") ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);

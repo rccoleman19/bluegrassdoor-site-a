@@ -10,12 +10,26 @@
   if (!chat || !fab) return;
   var DRAW = "svg.dp-svg, .dcard__draw svg, .qdoor__draw svg, .rq-draw svg, [data-door-preview] svg, .viz__stage canvas";
   var SPOTS = ["", "chat--mini", "chat--mini chat--left"], ALL = ["chat--mini", "chat--left", "chat--tucked"];
-  var GAP = 8, queued = false;
+  var GAP = 8, queued = false, cur = "", timer = 0, rects = {};
 
-  function setSpot(s) {
+  function apply(s) {
     ALL.forEach(function (c) { chat.classList.remove(c); });
     if (s) s.split(" ").forEach(function (c) { chat.classList.add(c); });
+  }
+  function setSpot(s) {                             // only touches the page when the spot really changes
+    if (s === cur) return;
+    cur = s; apply(s);
     document.documentElement.classList.toggle("chat-tucked", s === "chat--tucked");
+  }
+  // the button is position:fixed, so each spot's box only changes with the window size: measure once, reuse
+  function rectOf(s) {
+    if (!rects[s]) {
+      if (s !== cur) apply(s);
+      var r = fab.getBoundingClientRect();
+      rects[s] = { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width };
+      if (s !== cur) apply(cur);
+    }
+    return rects[s];
   }
   // the heading row of the live drawing panel, fully on screen (it holds a "Questions?" button shown while tucked)
   function panelAskOnScreen() {
@@ -47,29 +61,22 @@
     queued = false;
     if (chat.classList.contains("is-open")) return;
     var list = drawings();
-    setSpot("");
-    var f = fab.getBoundingClientRect();
-    if (!f.width || !list.length) return;          // hidden (small screens) or nothing to avoid
+    if (!list.length || !rectOf("").width) { setSpot(""); return; }   // nothing to avoid, or the button is hidden (small screens)
     for (var i = 0; i < SPOTS.length; i++) {
       if (SPOTS[i] === "chat--mini chat--left" && panelAskOnScreen()) break;
-      setSpot(SPOTS[i]);
-      if (!hits(fab.getBoundingClientRect(), list)) return;
+      if (!hits(rectOf(SPOTS[i]), list)) { setSpot(SPOTS[i]); return; }
     }
     setSpot("chat--tucked");
   }
   function queue() { if (!queued) { queued = true; requestAnimationFrame(place); } }
+  function later() { queue(); clearTimeout(timer); timer = setTimeout(queue, 350); }   // again once panels finish moving
 
   window.addEventListener("scroll", queue, { passive: true });
-  window.addEventListener("resize", queue);
-  document.addEventListener("click", function () { setTimeout(queue, 0); setTimeout(queue, 350); }, true);
-  document.addEventListener("input", queue, true);
-  document.addEventListener("change", queue, true);
-  if ("MutationObserver" in window) {
-    new MutationObserver(function (recs) {
-      for (var i = 0; i < recs.length; i++) if (!chat.contains(recs[i].target)) { queue(); return; }
-    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden", "class", "open"] });
-  }
-  if ("ResizeObserver" in window) new ResizeObserver(queue).observe(document.body);
-  window.addEventListener("load", queue);
+  window.addEventListener("resize", function () { rects = {}; queue(); });
+  window.addEventListener("load", function () { rects = {}; queue(); });
+  document.addEventListener("click", later, true);
+  document.addEventListener("input", later, true);
+  document.addEventListener("change", later, true);
+  document.addEventListener("toggle", later, true);
   queue();
 })();
