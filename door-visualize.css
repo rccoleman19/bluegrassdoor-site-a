@@ -46,13 +46,25 @@ html.viz-open, html.viz-open body { overflow: hidden; }
 .viz__work { min-width: 0; display: flex; justify-content: center; }
 .viz__stage { position: relative; max-width: 100%; touch-action: pan-y pinch-zoom; user-select: none; -webkit-user-select: none; }
 .viz__stage canvas { display: block; width: 100%; height: 100%; border-radius: 8px; background: #e9edf3; }
-.viz__handle { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.viz__move { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; overflow: visible; touch-action: none; pointer-events: none; }
+.viz__move polygon { fill: rgba(0, 0, 0, 0.004); stroke: none; pointer-events: fill; cursor: grab; touch-action: none; }
+.viz__move polygon.is-drag { cursor: grabbing; }
+.viz__handle { position: absolute; left: -24px; top: -24px; z-index: 3; width: 48px; height: 48px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
 .viz__handle span { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 3px solid #fff; background: rgba(0, 51, 160, .85); box-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
 .viz__handle span::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: #fff; }
 .viz__handle:focus-visible { outline: none; }
 .viz__handle:focus-visible span, .viz__handle.is-drag span { border-color: var(--amber, #f5b82e); background: var(--blue, #0033a0); transform: scale(1.2); }
 .viz__handle.is-drag { cursor: grabbing; }
-.viz.is-crossed .viz__handle span { background: #c0392b; }
+.viz__edge { position: absolute; left: -36px; top: -22px; z-index: 2; width: 72px; height: 44px; padding: 0; border: 0; background: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.viz__edge--h { cursor: ns-resize; }
+.viz__edge--v { cursor: ew-resize; }
+.viz__edge span { position: absolute; left: 50%; top: 50%; width: 36px; height: 10px; margin: -5px 0 0 -18px; border-radius: 5px; border: 2px solid #fff; background: rgba(0, 51, 160, .85); box-shadow: 0 1px 4px rgba(0, 0, 0, .45); pointer-events: none; }
+.viz__edge:focus-visible { outline: none; }
+.viz__edge:focus-visible span, .viz__edge.is-drag span { border-color: var(--amber, #f5b82e); background: var(--blue, #0033a0); transform: scale(1.12); }
+.viz.is-crossed .viz__handle span, .viz.is-crossed .viz__edge span { background: #c0392b; }
+html.viz-moving, html.viz-moving * { cursor: grabbing !important; }
+html.viz-ns, html.viz-ns * { cursor: ns-resize !important; }
+html.viz-ew, html.viz-ew * { cursor: ew-resize !important; }
 .viz__help { margin: 0; font-size: .95rem; line-height: 1.45; }
 .viz.is-crossed .viz__help { color: #8d1c12; font-weight: 600; }
 .viz__controls { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }

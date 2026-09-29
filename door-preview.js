@@ -533,6 +533,17 @@
     };
   }
 
+  /* The full drawing (wall, door, hardware, dimension) as one self-contained <svg> string, for build cards,
+     quote summaries and the office view. Gradient ids get a suffix so several drawings can share a page. */
+  function svgMarkup(cfg, uid, label, cls) {
+    if (!cfg) return "";
+    var r = render(cfg), sfx = uid ? "-" + String(uid).replace(/[^\w-]/g, "") : "";
+    var defs = DEFS.replace(/id="(dp\w+)"/g, 'id="$1' + sfx + '"');
+    var body = r.body.replace(/url\(#(dp\w+)\)/g, "url(#$1" + sfx + ")");
+    return '<svg class="dp-svg' + (cls ? " " + cls : "") + '" role="img" aria-label="' + esc(label || ("Drawing of " + cfg.summary)) + '" viewBox="' + r.viewBox.map(r1).join(" ") +
+      '" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">' + defs + '<g class="dp-scene">' + body + "</g></svg>";
+  }
+
   var DEFS = '<defs>' +
     '<linearGradient id="dpGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4f1fa"/><stop offset=".55" stop-color="#bcd8ea"/><stop offset="1" stop-color="#a9c9de"/></linearGradient>' +
     '<linearGradient id="dpFrost" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f4f7"/><stop offset="1" stop-color="#dde4ea"/></linearGradient>' +
@@ -650,7 +661,7 @@
         };
       }
       function customLabel() {
-        var w = document.getElementById("size-w").value, h = document.getElementById("size-h").value, q = document.getElementById("size-q").value || 1;
+        var w = document.getElementById("size-w").value, h = document.getElementById("size-h").value, qe = document.getElementById("size-q"), q = (qe && qe.value) || 1;
         return "Custom: " + (w || "?") + "\" W × " + (h || "?") + "\" H" + (q > 1 ? " (qty " + q + ")" : "");
       }
       document.addEventListener("doorbuilder:change", function (e) { last = e.detail; panel.update(toSel(last)); });
@@ -723,7 +734,7 @@
     root.DoorPreview.panel = panel;
   }
 
-  root.DoorPreview = { buildConfig: buildConfig, render: render, openingSVG: openingSVG, parseLength: parseLength, init: init, current: null };
+  root.DoorPreview = { buildConfig: buildConfig, render: render, openingSVG: openingSVG, svgMarkup: svgMarkup, parseLength: parseLength, init: init, current: null };
   // Scripts sit at the end of <body>, so the panel usually exists already: start at once so the
   // builder's first "doorbuilder:change" event is not missed. Otherwise wait for the DOM.
   if (document.querySelector("[data-door-preview]")) init(); else document.addEventListener("DOMContentLoaded", init);
