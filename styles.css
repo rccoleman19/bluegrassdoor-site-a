@@ -110,6 +110,38 @@ body.nav-open { overflow: hidden; }
 .hb h1 span { display: block; margin-top: 4px; font-size: .64em; font-weight: 700; color: var(--amber); letter-spacing: .03em; }
 .hb__promise { margin: 0; font-size: .98rem; line-height: 1.4; color: #dce6ff; max-width: 40rem; }
 .hb__call a { color: #fff; font-weight: 700; white-space: nowrap; }
+/* Phones: lift the crew above the headline. The text overlaps the bottom of the photo,
+   so the frame is taller and the picture sits higher, with a little ceiling left above the tallest head.
+   Extra width hangs off the left; the right edge stays put so the tall man is not cropped. */
+@media (max-width: 639px) {
+  .hb__photo { height: clamp(200px, 62vw, 280px); overflow: hidden; }
+  .hb__photo img {
+    position: absolute;
+    width: 108%;
+    height: auto;
+    max-width: none;
+    right: 0;
+    left: auto;
+    top: 0;
+    transform: translateY(-23%);
+    object-fit: fill;
+  }
+  .hb__photo::after { background: linear-gradient(180deg, rgba(11,29,68,0) 78%, rgba(11,29,68,.7) 94%, var(--navy) 100%); }
+}
+@media (max-width: 639px) and (orientation: landscape) {
+  .hb__photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    right: auto;
+    left: 0;
+    top: 0;
+    transform: none;
+    object-fit: cover;
+    object-position: 48% 38%;
+  }
+}
 
 /* Trust strip */
 .trust { background: var(--blue); color: #fff; }
