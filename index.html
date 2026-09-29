@@ -4,22 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
-  <title>Bluegrass Commercial Door &amp; More | Your Door Specialists in Bowling Green, KY</title>
+  <title>Commercial Doors, Frames &amp; Hardware in Bowling Green, KY | Bluegrass Commercial Door &amp; More</title>
   <meta name="description" content="Family business based in Bowling Green, KY. We serve Warren County and surrounding areas. Residential and Commercial doors, frames, hardware, partitions, accessories and flag poles.">
   <meta name="theme-color" content="#0033A0">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Bluegrass Commercial Door &amp; More | Your Door Specialists">
+  <meta property="og:title" content="Commercial doors, frames &amp; hardware in Bowling Green, KY">
   <meta property="og:description" content="Family business based in Bowling Green, KY. We serve Warren County and surrounding areas. Residential and Commercial.">
-  <meta property="og:image" content="images/van-and-shop-building-wide.jpg">
+  <meta property="og:image" content="images/crew-hero-enhanced.jpg">
   <link rel="icon" href="images/favicon-32.png" sizes="32x32">
   <link rel="icon" href="images/favicon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="images/team-in-front-of-shop.jpg" media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)">
-  <link rel="preload" as="image" href="images/van-and-shop-building-wide.jpg" media="(min-width: 1024px), (min-width: 761px) and (min-height: 541px), (min-width: 761px) and (orientation: portrait)">
-  <link rel="stylesheet" href="styles.css?v=cc2">
+  <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg">
+  <link rel="stylesheet" href="styles.css?v=cc4">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -31,7 +30,7 @@
     "telephone": "+1-270-780-3235",
     "email": "sonya@bluegrassdoor.com",
     "url": "https://bluegrassdoor.com/",
-    "image": "images/van-and-shop-building-wide.jpg",
+    "image": "images/crew-hero-enhanced.jpg",
     "logo": "images/logo-512.png",
     "address": {
       "@type": "PostalAddress",
@@ -103,24 +102,209 @@
   </header>
 
   <main id="main">
-    <!-- HERO -->
-    <section class="hero" aria-labelledby="hero-title">
-      <picture class="hero__media">
-        <source media="(max-width: 760px), (orientation: landscape) and (max-height: 540px) and (max-width: 1023px)" srcset="images/team-in-front-of-shop.jpg">
-        <img src="images/van-and-shop-building-wide.jpg" width="1200" height="630" alt="The Bluegrass Commercial Door &amp; More van parked in front of the company's blue shop building in Bowling Green, Kentucky" data-alt-team="The Bluegrass Commercial Door &amp; More team in blue company shirts in front of the shop in Bowling Green, Kentucky">
-      </picture>
-      <div class="hero__shade" aria-hidden="true"></div>
-      <div class="wrap hero__content">
-        <p class="eyebrow eyebrow--light">Bowling Green, KY &middot; Family owned</p>
-        <h1 id="hero-title">Your Door Specialists</h1>
-        <p class="hero__lead">Commercial &amp; residential doors, frames, hardware, partitions, accessories and flag poles, professionally installed across Warren County and the surrounding area.</p>
-        <div class="hero__ctas">
-          <a class="btn btn--accent btn--lg" href="tel:+12707803235">
-            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
-            Call 270-780-3235
-          </a>
-          <a class="btn btn--ghost btn--lg" href="#builder" data-to-builder>Request a Quote</a>
+    <!-- OPENING: crew photo, then the door builder -->
+    <section class="hb" id="builder" aria-labelledby="hero-title">
+      <div class="hb__band">
+        <div class="hb__photo">
+          <img src="images/crew-hero-enhanced.jpg" width="1920" height="1440" fetchpriority="high" alt="The Bluegrass Commercial Door &amp; More crew in blue company shirts in front of the shop in Bowling Green, Kentucky">
         </div>
+        <div class="wrap hb__intro">
+          <p class="eyebrow eyebrow--light">Bluegrass Commercial Door &amp; More<span class="hb__eb-extra"> &middot; Family owned</span></p>
+          <h1 id="hero-title">Commercial doors, frames &amp; hardware <span>in Bowling Green, KY</span></h1>
+          <p class="hb__promise">Build your door below and get a quote on exactly the door you build.<span class="hb__call"> Rather talk it through? Call <a href="tel:+12707803235">270-780-3235</a>.</span></p>
+        </div>
+      </div>
+
+      <div class="wrap builder-flow__work" id="door-builder" data-view="steps">
+        <div class="builder-flow__main">
+          <!-- 1. the steps -->
+          <div class="bview bview--steps" data-panel="steps">
+            <div class="bsteps__top">
+              <p class="bdoor" id="door-label" hidden></p>
+              <ol class="bprog" id="builder-progress" aria-label="Door builder steps"></ol>
+            </div>
+
+            <div class="builder__panel" data-step="1">
+              <h2 class="bq" tabindex="-1">What kind of door do you need?</h2>
+              <div class="opts opts--type" data-field="type" role="radiogroup" aria-label="Door type"></div>
+              <p class="bhelp">Not sure which one? Pick the closest. You can change anything before you ask for a quote, or call <a href="tel:+12707803235">270-780-3235</a> and we'll help.</p>
+            </div>
+            <div class="builder__panel" data-step="2" hidden>
+              <h2 class="bq" tabindex="-1">Which material?</h2>
+              <p class="builder__hint">Not sure? Pick &ldquo;Recommend for me&rdquo; and we'll suggest the right fit.</p>
+              <div class="opts" data-field="material" role="radiogroup" aria-label="Material"></div>
+            </div>
+            <div class="builder__panel" data-step="3" hidden>
+              <h2 class="bq" tabindex="-1">What size is the opening?</h2>
+              <p class="builder__hint">Not sure? Pick &ldquo;Not sure&rdquo; and we'll measure.</p>
+              <div class="opts" data-field="size" role="radiogroup" aria-label="Size"></div>
+              <div class="custom-size" id="custom-size" hidden>
+                <label>Width (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-w" placeholder="36"></label>
+                <span aria-hidden="true">&times;</span>
+                <label>Height (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-h" placeholder="84"></label>
+                <input type="hidden" id="size-q" value="1">
+              </div>
+            </div>
+            <div class="builder__panel" data-step="4" hidden>
+              <h2 class="bq" tabindex="-1">Hardware &amp; options</h2>
+              <p class="builder__hint">Choose all that apply. Not sure? Pick &ldquo;Recommend for me.&rdquo;</p>
+              <div class="opts opts--multi" data-field="hardware" aria-label="Hardware"></div>
+            </div>
+
+            <div class="builder__notice" id="builder-notice" role="status" aria-live="polite" hidden></div>
+            <p class="sr-only" id="builder-live" aria-live="polite"></p>
+            <div class="builder__nav">
+              <button class="btn btn--text" type="button" id="b-back" hidden>&larr; Back</button>
+              <button class="btn btn--text" type="button" id="b-cancel" hidden>Back to my doors</button>
+              <button class="btn btn--outline" type="button" id="b-save" hidden>Save changes</button>
+              <button class="btn btn--accent" type="button" id="b-next" disabled>Next &rarr;</button>
+            </div>
+          </div>
+
+          <!-- 2. the finished build -->
+          <div class="bview bview--built" data-panel="built" hidden>
+            <div class="built__head">
+              <p class="eyebrow">Your build</p>
+              <h2 id="built-title" tabindex="-1">Your door is ready for quote.</h2>
+              <p class="built__lead" id="built-lead">This is exactly what you built. Look it over, then get a quote on it.</p>
+            </div>
+            <p class="built__banner" id="built-banner" hidden></p>
+            <ol class="doors" id="door-list" aria-labelledby="built-title"></ol>
+            <div class="built__add">
+              <button class="btn btn--outline" type="button" id="b-add"><span aria-hidden="true" class="plus">+</span> Add another door</button>
+              <p class="built__fine">Several openings on one job? Add each door, or change &ldquo;How many&rdquo; for identical ones. They all go into one quote request.</p>
+            </div>
+            <section class="codes" id="codes" aria-labelledby="codes-title">
+              <h3 class="codes__title" id="codes-title"><span class="codes__i" aria-hidden="true">i</span>Local &amp; state code: worth checking</h3>
+              <p class="codes__lead">A few things your inspector may look at for these doors, each with the code section and a link to the source. Worth checking with your inspector or our office. <strong>Suggestions only. Your local inspector has the final say.</strong></p>
+              <div class="codes__ctl">
+                <div class="codes__field">
+                  <label for="code-juris">Where&rsquo;s the job?</label>
+                  <select id="code-juris"></select>
+                  <p class="codes__hint" id="code-juris-hint">Most of our jobs are in Warren County, KY. Change it if your project is elsewhere.</p>
+                </div>
+                <div class="codes__field">
+                  <span class="codes__label" id="code-use-label">Business or home?</span>
+                  <div class="codes__use" role="group" aria-labelledby="code-use-label">
+                    <button type="button" data-use="business" aria-pressed="false">Business</button>
+                    <button type="button" data-use="home" aria-pressed="false">Home</button>
+                  </div>
+                  <p class="codes__hint" id="code-use-hint"></p>
+                </div>
+              </div>
+              <ul class="codes__list" id="code-list"></ul>
+              <button type="button" class="btn btn--text codes__more" id="code-more" aria-controls="code-list" hidden></button>
+              <p class="sr-only" id="code-live" aria-live="polite"></p>
+            </section>
+            <div class="built__cta">
+              <p class="built__count" id="built-count">1 door, ready to quote</p>
+              <button class="btn btn--accent btn--lg" type="button" id="b-quote"><span id="b-quote-text">Get a quote on this door</span> <span aria-hidden="true">&rarr;</span></button>
+            </div>
+            <p class="sr-only" id="built-live" aria-live="polite"></p>
+          </div>
+
+          <!-- 3. the quote request, in place -->
+          <div class="bview bview--quote" data-panel="quote" hidden>
+            <div class="qhead">
+              <button class="btn btn--text qback" type="button" id="q-back">&larr; <span id="q-back-text">Back to my door</span></button>
+              <h2 id="quote-title" tabindex="-1">Get a quote on this door</h2>
+              <p class="qlead">Tell us how to reach you. <span id="q-lead-doors">Your door is attached</span> exactly as you built it.</p>
+            </div>
+            <div class="qwrap">
+              <div class="qmain">
+                <form class="qform" id="quote-form" novalidate>
+                  <div class="field-row">
+                    <div class="field">
+                      <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
+                      <input id="q-name" name="name" type="text" autocomplete="name" required aria-required="true" maxlength="80">
+                      <p class="field__err" id="q-name-err">Please enter your name.</p>
+                    </div>
+                    <div class="field">
+                      <label for="q-company">Company <span class="opt-l">(optional)</span></label>
+                      <input id="q-company" name="company" type="text" autocomplete="organization" maxlength="80">
+                    </div>
+                  </div>
+                  <fieldset class="field-set" id="q-reach" aria-describedby="q-reach-err">
+                    <legend>How should we reach you? <span class="req" aria-hidden="true">*</span> <span class="legend-sub">A phone number or an email, whichever you prefer.</span></legend>
+                    <div class="field-row">
+                      <div class="field">
+                        <label for="q-phone">Phone</label>
+                        <input id="q-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40">
+                      </div>
+                      <div class="field">
+                        <label for="q-email">Email</label>
+                        <input id="q-email" name="email" type="email" autocomplete="email" maxlength="120">
+                      </div>
+                    </div>
+                    <p class="field__err" id="q-reach-err">Please give us a phone number or an email address.</p>
+                  </fieldset>
+                  <div class="field-row">
+                    <div class="field">
+                      <label for="q-addr">Project address or city</label>
+                      <input id="q-addr" name="address" type="text" autocomplete="street-address" maxlength="160" placeholder="e.g. 1200 Main St, Bowling Green">
+                    </div>
+                    <div class="field">
+                      <label for="q-when">Timeline</label>
+                      <select id="q-when" name="timeline">
+                        <option value="">Choose one (optional)</option>
+                        <option>As soon as possible</option>
+                        <option>Within 1 month</option>
+                        <option>1&ndash;3 months</option>
+                        <option>Planning / bidding</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="q-msg">Anything else we should know? <span class="opt-l">(optional)</span></label>
+                    <textarea id="q-msg" name="notes" rows="3" maxlength="1000" placeholder="e.g. replacing an existing storefront door, need it before opening day"></textarea>
+                  </div>
+                  <div class="q-photo" id="q-photo" hidden>
+                    <label class="q-check"><input type="checkbox" id="q-photo-yes" checked> I have a photo of the new door on my building</label>
+                    <p>This form can't carry the photo. Keep <strong>my-building-with-new-door.jpg</strong> from your downloads and we'll ask you for it if it helps with your quote.</p>
+                  </div>
+                  <button class="btn btn--accent btn--lg btn--block" type="submit" id="q-submit">Send my quote request</button>
+                  <div class="q-senderr" id="q-send-err" role="alert" hidden></div>
+                  <p class="quote__fine">Your <span id="q-fine-doors">door</span> and details go straight to our office. Prefer to talk? Call <a href="tel:+12707803235">270-780-3235</a>.</p>
+                </form>
+              </div>
+              <aside class="qside" aria-labelledby="qside-title">
+                <h3 id="qside-title">Attached to your request</h3>
+                <ul class="qdoors" id="q-doors"></ul>
+                <p class="qcodes" id="q-codes" hidden></p>
+                <button class="btn btn--text qside__edit" type="button" id="q-edit">Change something</button>
+              </aside>
+            </div>
+          </div>
+
+          <!-- 4. request received -->
+          <div class="bview bview--sent" data-panel="sent" hidden>
+            <div class="sent">
+              <div class="sent__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div>
+              <h2 id="sent-title" tabindex="-1">Request received<span id="sent-name"></span></h2>
+              <p>Your reference is <strong class="sent__ref" id="sent-ref"></strong>. We'll be in touch.</p>
+              <p class="sent__photo" id="sent-photo" hidden>Keep <strong>my-building-with-new-door.jpg</strong> from your downloads. We'll ask you for it if it helps with your quote.</p>
+              <div class="sent__acts">
+                <a class="btn btn--outline" href="tel:+12707803235">Call 270-780-3235</a>
+              </div>
+              <p class="sent__help">Questions, or something to add? Give us a call and mention your reference.</p>
+              <div class="sent__links">
+                <a id="sent-view" href="request.html" target="_blank" rel="noopener">See the request as our office will</a>
+                <button class="btn btn--text" type="button" id="sent-back">Back to my doors</button>
+                <button class="btn btn--text" type="button" id="sent-new">Start a new request</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="dp-panel builder-flow__aside" data-door-preview="a" data-header=".header" aria-label="Door preview">
+          <div class="dp-sticky">
+            <div class="dp-head"><p class="dp-title">Your door</p><button type="button" class="dp-ask" data-open-chat aria-label="Open help chat"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Questions?</button></div>
+            <div class="dp-stage"><svg class="dp-svg" role="img" aria-label="Your door will appear here as you choose." viewBox="-22 -16 80 114" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
+            <div class="dp-caption"><p class="dp-empty">Your door will appear here as you choose.</p></div>
+            <figure class="dp-photo" hidden><img alt="" width="72" height="96" decoding="async"><figcaption></figcaption></figure>
+            <p class="dp-live" role="status" aria-live="polite"></p>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -317,201 +501,6 @@
       </div>
     </section>
 
-    <!-- DOOR BUILDER -->
-    <section class="builder-flow" id="builder" aria-label="Door builder">
-      <div class="wrap builder-flow__work" id="door-builder" data-view="steps">
-        <div class="builder-flow__main">
-          <!-- 1. the steps -->
-          <div class="bview bview--steps" data-panel="steps">
-            <div class="bsteps__top">
-              <p class="bdoor" id="door-label" hidden></p>
-              <ol class="bprog" id="builder-progress" aria-label="Door builder steps"></ol>
-            </div>
-
-            <div class="builder__panel" data-step="1">
-              <h2 class="bq" tabindex="-1">What kind of door do you need?</h2>
-              <div class="opts opts--type" data-field="type" role="radiogroup" aria-label="Door type"></div>
-              <p class="bhelp">Not sure which one? Pick the closest. You can change anything before you ask for a quote, or call <a href="tel:+12707803235">270-780-3235</a> and we'll help.</p>
-            </div>
-            <div class="builder__panel" data-step="2" hidden>
-              <h2 class="bq" tabindex="-1">Which material?</h2>
-              <p class="builder__hint">Not sure? Pick &ldquo;Recommend for me&rdquo; and we'll suggest the right fit.</p>
-              <div class="opts" data-field="material" role="radiogroup" aria-label="Material"></div>
-            </div>
-            <div class="builder__panel" data-step="3" hidden>
-              <h2 class="bq" tabindex="-1">What size is the opening?</h2>
-              <p class="builder__hint">Not sure? Pick &ldquo;Not sure&rdquo; and we'll measure.</p>
-              <div class="opts" data-field="size" role="radiogroup" aria-label="Size"></div>
-              <div class="custom-size" id="custom-size" hidden>
-                <label>Width (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-w" placeholder="36"></label>
-                <span aria-hidden="true">&times;</span>
-                <label>Height (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-h" placeholder="84"></label>
-                <input type="hidden" id="size-q" value="1">
-              </div>
-            </div>
-            <div class="builder__panel" data-step="4" hidden>
-              <h2 class="bq" tabindex="-1">Hardware &amp; options</h2>
-              <p class="builder__hint">Choose all that apply. Not sure? Pick &ldquo;Recommend for me.&rdquo;</p>
-              <div class="opts opts--multi" data-field="hardware" aria-label="Hardware"></div>
-            </div>
-
-            <div class="builder__notice" id="builder-notice" role="status" aria-live="polite" hidden></div>
-            <p class="sr-only" id="builder-live" aria-live="polite"></p>
-            <div class="builder__nav">
-              <button class="btn btn--text" type="button" id="b-back" hidden>&larr; Back</button>
-              <button class="btn btn--text" type="button" id="b-cancel" hidden>Back to my doors</button>
-              <button class="btn btn--outline" type="button" id="b-save" hidden>Save changes</button>
-              <button class="btn btn--accent" type="button" id="b-next" disabled>Next &rarr;</button>
-            </div>
-          </div>
-
-          <!-- 2. the finished build -->
-          <div class="bview bview--built" data-panel="built" hidden>
-            <div class="built__head">
-              <p class="eyebrow">Your build</p>
-              <h2 id="built-title" tabindex="-1">Your door is ready for quote.</h2>
-              <p class="built__lead" id="built-lead">This is exactly what you built. Look it over, then get a quote on it.</p>
-            </div>
-            <p class="built__banner" id="built-banner" hidden></p>
-            <ol class="doors" id="door-list" aria-labelledby="built-title"></ol>
-            <div class="built__add">
-              <button class="btn btn--outline" type="button" id="b-add"><span aria-hidden="true" class="plus">+</span> Add another door</button>
-              <p class="built__fine">Several openings on one job? Add each door, or change &ldquo;How many&rdquo; for identical ones. They all go into one quote request.</p>
-            </div>
-            <section class="codes" id="codes" aria-labelledby="codes-title">
-              <h3 class="codes__title" id="codes-title"><span class="codes__i" aria-hidden="true">i</span>Local &amp; state code: worth checking</h3>
-              <p class="codes__lead">A few things your inspector may look at for these doors, each with the code section and a link to the source. Worth checking with your inspector or our office. <strong>Suggestions only. Your local inspector has the final say.</strong></p>
-              <div class="codes__ctl">
-                <div class="codes__field">
-                  <label for="code-juris">Where&rsquo;s the job?</label>
-                  <select id="code-juris"></select>
-                  <p class="codes__hint" id="code-juris-hint">Most of our jobs are in Warren County, KY. Change it if your project is elsewhere.</p>
-                </div>
-                <div class="codes__field">
-                  <span class="codes__label" id="code-use-label">Business or home?</span>
-                  <div class="codes__use" role="group" aria-labelledby="code-use-label">
-                    <button type="button" data-use="business" aria-pressed="false">Business</button>
-                    <button type="button" data-use="home" aria-pressed="false">Home</button>
-                  </div>
-                  <p class="codes__hint" id="code-use-hint"></p>
-                </div>
-              </div>
-              <ul class="codes__list" id="code-list"></ul>
-              <button type="button" class="btn btn--text codes__more" id="code-more" aria-controls="code-list" hidden></button>
-              <p class="sr-only" id="code-live" aria-live="polite"></p>
-            </section>
-            <div class="built__cta">
-              <p class="built__count" id="built-count">1 door, ready to quote</p>
-              <button class="btn btn--accent btn--lg" type="button" id="b-quote"><span id="b-quote-text">Get a quote on this door</span> <span aria-hidden="true">&rarr;</span></button>
-            </div>
-            <p class="sr-only" id="built-live" aria-live="polite"></p>
-          </div>
-
-          <!-- 3. the quote request, in place -->
-          <div class="bview bview--quote" data-panel="quote" hidden>
-            <div class="qhead">
-              <button class="btn btn--text qback" type="button" id="q-back">&larr; <span id="q-back-text">Back to my door</span></button>
-              <h2 id="quote-title" tabindex="-1">Get a quote on this door</h2>
-              <p class="qlead">Tell us how to reach you. <span id="q-lead-doors">Your door is attached</span> exactly as you built it.</p>
-            </div>
-            <div class="qwrap">
-              <div class="qmain">
-                <form class="qform" id="quote-form" novalidate>
-                  <div class="field-row">
-                    <div class="field">
-                      <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
-                      <input id="q-name" name="name" type="text" autocomplete="name" required aria-required="true" maxlength="80">
-                      <p class="field__err" id="q-name-err">Please enter your name.</p>
-                    </div>
-                    <div class="field">
-                      <label for="q-company">Company <span class="opt-l">(optional)</span></label>
-                      <input id="q-company" name="company" type="text" autocomplete="organization" maxlength="80">
-                    </div>
-                  </div>
-                  <fieldset class="field-set" id="q-reach" aria-describedby="q-reach-err">
-                    <legend>How should we reach you? <span class="req" aria-hidden="true">*</span> <span class="legend-sub">A phone number or an email, whichever you prefer.</span></legend>
-                    <div class="field-row">
-                      <div class="field">
-                        <label for="q-phone">Phone</label>
-                        <input id="q-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40">
-                      </div>
-                      <div class="field">
-                        <label for="q-email">Email</label>
-                        <input id="q-email" name="email" type="email" autocomplete="email" maxlength="120">
-                      </div>
-                    </div>
-                    <p class="field__err" id="q-reach-err">Please give us a phone number or an email address.</p>
-                  </fieldset>
-                  <div class="field-row">
-                    <div class="field">
-                      <label for="q-addr">Project address or city</label>
-                      <input id="q-addr" name="address" type="text" autocomplete="street-address" maxlength="160" placeholder="e.g. 1200 Main St, Bowling Green">
-                    </div>
-                    <div class="field">
-                      <label for="q-when">Timeline</label>
-                      <select id="q-when" name="timeline">
-                        <option value="">Choose one (optional)</option>
-                        <option>As soon as possible</option>
-                        <option>Within 1 month</option>
-                        <option>1&ndash;3 months</option>
-                        <option>Planning / bidding</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="field">
-                    <label for="q-msg">Anything else we should know? <span class="opt-l">(optional)</span></label>
-                    <textarea id="q-msg" name="notes" rows="3" maxlength="1000" placeholder="e.g. replacing an existing storefront door, need it before opening day"></textarea>
-                  </div>
-                  <div class="q-photo" id="q-photo" hidden>
-                    <label class="q-check"><input type="checkbox" id="q-photo-yes" checked> I have a photo of the new door on my building</label>
-                    <p>This form can't carry the photo. Keep <strong>my-building-with-new-door.jpg</strong> from your downloads and we'll ask you for it if it helps with your quote.</p>
-                  </div>
-                  <button class="btn btn--accent btn--lg btn--block" type="submit" id="q-submit">Send my quote request</button>
-                  <div class="q-senderr" id="q-send-err" role="alert" hidden></div>
-                  <p class="quote__fine">Your <span id="q-fine-doors">door</span> and details go straight to our office. Prefer to talk? Call <a href="tel:+12707803235">270-780-3235</a>.</p>
-                </form>
-              </div>
-              <aside class="qside" aria-labelledby="qside-title">
-                <h3 id="qside-title">Attached to your request</h3>
-                <ul class="qdoors" id="q-doors"></ul>
-                <p class="qcodes" id="q-codes" hidden></p>
-                <button class="btn btn--text qside__edit" type="button" id="q-edit">Change something</button>
-              </aside>
-            </div>
-          </div>
-
-          <!-- 4. request received -->
-          <div class="bview bview--sent" data-panel="sent" hidden>
-            <div class="sent">
-              <div class="sent__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div>
-              <h2 id="sent-title" tabindex="-1">Request received<span id="sent-name"></span></h2>
-              <p>Your reference is <strong class="sent__ref" id="sent-ref"></strong>. We'll be in touch.</p>
-              <p class="sent__photo" id="sent-photo" hidden>Keep <strong>my-building-with-new-door.jpg</strong> from your downloads. We'll ask you for it if it helps with your quote.</p>
-              <div class="sent__acts">
-                <a class="btn btn--outline" href="tel:+12707803235">Call 270-780-3235</a>
-              </div>
-              <p class="sent__help">Questions, or something to add? Give us a call and mention your reference.</p>
-              <div class="sent__links">
-                <a id="sent-view" href="request.html" target="_blank" rel="noopener">See the request as our office will</a>
-                <button class="btn btn--text" type="button" id="sent-back">Back to my doors</button>
-                <button class="btn btn--text" type="button" id="sent-new">Start a new request</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <aside class="dp-panel builder-flow__aside" data-door-preview="a" data-header=".header" aria-label="Door preview">
-          <div class="dp-sticky">
-            <div class="dp-head"><p class="dp-title">Your door</p><button type="button" class="dp-ask" data-open-chat aria-label="Open help chat"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Questions?</button></div>
-            <div class="dp-stage"><svg class="dp-svg" role="img" aria-label="Your door will appear here as you choose." viewBox="-22 -16 80 114" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
-            <div class="dp-caption"><p class="dp-empty">Your door will appear here as you choose.</p></div>
-            <figure class="dp-photo" hidden><img alt="" width="72" height="96" decoding="async"><figcaption></figcaption></figure>
-            <p class="dp-live" role="status" aria-live="polite"></p>
-          </div>
-        </aside>
-      </div>
-    </section>
-
     <!-- SERVICE AREA -->
     <section class="section" id="area" aria-labelledby="area-title">
       <div class="wrap area">
@@ -675,7 +664,7 @@
   <script src="builder-rules.js?v=viz1"></script>
   <script src="door-spec.js?v=spec1"></script>
   <script src="code-checks.js?v=cc1"></script>
-  <script src="app.js?v=cc3"></script>
+  <script src="app.js?v=cc4"></script>
   <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz2"></script>
 </body>

@@ -95,27 +95,21 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .nav__addr { color: var(--muted); text-align: center; margin: 8px 0 0; }
 body.nav-open { overflow: hidden; }
 
-/* Hero */
-.hero { position: relative; background: #081636; min-height: calc(100svh - var(--header-h)); display: flex; align-items: flex-end; color: #fff; overflow: hidden; background: var(--navy); }
-.hero__media img { position: absolute; inset: 0; width: 100%; height: 100%; }
-/* Phone hero photo: sized from the space left above the text block and anchored so the crew
-   (rows ~46%-80% of team-in-front-of-shop.jpg, 960x720) sits just above the eyebrow.
-   --txt = distance from the hero bottom to the top of the eyebrow; --img-h = rendered photo height. */
-.hero {
-  --txt: 470px;
-  --avail: calc(100vh - var(--header-h) - var(--txt));
-  --img-h: max(75vw, min(calc(var(--avail) * 2.5), calc((100vw - 20px) * 2.057), 880px));
-}
-@supports (height: 1svh) { .hero { --avail: calc(100svh - var(--header-h) - var(--txt)); } }
-@media (max-width: 359px) { .hero { --txt: 492px; } }
-@media (min-width: 640px) and (max-width: 760px) { .hero { --txt: 366px; } }
-.hero__media { position: absolute; left: 0; right: 0; top: auto; height: var(--img-h); bottom: calc(var(--txt) + 12px - var(--img-h) * 0.194); }
-.hero__media img { object-fit: cover; object-position: 46% 50%; }
-.hero__shade { position: absolute; inset: 0; background: linear-gradient(0deg, #081636 0, #081636 calc(var(--txt) - 70px), rgba(8,22,54,.86) calc(var(--txt) - 24px), rgba(8,22,54,.38) calc(var(--txt) + 8px), rgba(8,22,54,0) calc(var(--txt) + 44px)); }
-.hero__content { position: relative; padding-top: 48px; padding-bottom: 36px; }
-.hero h1 { color: #fff; font-size: clamp(3rem, 14vw, 4.6rem); font-weight: 800; text-transform: uppercase; line-height: .92; max-width: 12ch; margin-bottom: 16px; text-shadow: 0 2px 20px rgba(0,0,0,.25); }
-.hero__lead { font-size: 1.08rem; color: #e3ebff; max-width: 38rem; margin-bottom: 24px; }
-.hero__ctas { display: grid; gap: 12px; }
+/* Opening band: crew photo, short blue panel flush left, door builder directly under the text */
+.hb { background: #fff; }
+.hb__band { position: relative; background: var(--navy); color: #fff; overflow: hidden; }
+.hb__photo { position: relative; height: clamp(150px, 42vw, 220px); }
+.hb__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+.hb__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,29,68,0) 30%, rgba(11,29,68,.75) 72%, var(--navy) 100%); }
+.hb__intro { position: relative; margin-top: -26px; padding-bottom: 16px; }
+.hb .eyebrow { margin-bottom: 8px; font-size: .72rem; letter-spacing: .1em; }
+.hb__eb-extra { display: inline; }
+.hb__intro .eyebrow { display: block; max-width: 100%; white-space: normal; }
+.hb__intro .eyebrow::before { display: inline-block; vertical-align: middle; margin-right: 10px; }
+.hb h1 { color: #fff; font-size: clamp(1.6rem, 7.1vw, 1.95rem); font-weight: 800; text-transform: uppercase; line-height: .98; margin: 0 0 8px; letter-spacing: .005em; }
+.hb h1 span { display: block; margin-top: 4px; font-size: .64em; font-weight: 700; color: var(--amber); letter-spacing: .03em; }
+.hb__promise { margin: 0; font-size: .98rem; line-height: 1.4; color: #dce6ff; max-width: 40rem; }
+.hb__call a { color: #fff; font-weight: 700; white-space: nowrap; }
 
 /* Trust strip */
 .trust { background: var(--blue); color: #fff; }
@@ -395,7 +389,11 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
-  .hero__ctas { display: flex; flex-wrap: wrap; }
+  .hb__photo { position: absolute; inset: 0 0 0 auto; width: 42%; height: auto; }
+  .hb__photo img { object-position: 50% 42%; }
+  .hb__photo::after { background: linear-gradient(90deg, var(--navy) 0%, rgba(11,29,68,.5) 8%, rgba(11,29,68,0) 22%); }
+  .hb__intro { margin-top: 0; padding-top: 26px; padding-bottom: 26px; padding-right: calc(42% + 12px); }
+  .hb h1 { font-size: clamp(2rem, 4.6vw, 2.6rem); }
   .trust__grid { grid-template-columns: repeat(4, 1fr); }
   .services { grid-template-columns: 1fr 1fr; }
   .pillars { grid-template-columns: repeat(3, 1fr); }
@@ -410,14 +408,6 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 }
 
 /* ---------- Desktop ---------- */
-@media (min-width: 761px) {
-  .hero { min-height: min(760px, calc(100vh - var(--header-h) - 40px)); align-items: center; }
-  .hero__media { inset: 0; height: auto; }
-  .hero__media img { object-position: 50% 45%; }
-  .hero__shade { background: linear-gradient(90deg, rgba(8,22,54,.95) 0%, rgba(8,22,54,.82) 38%, rgba(8,22,54,.35) 70%, rgba(8,22,54,.15) 100%); }
-  .hero__content { padding-top: 80px; padding-bottom: 80px; }
-  .hero h1 { font-size: clamp(3.4rem, 6vw, 5.2rem); }
-}
 @media (min-width: 1024px) {
   :root { --header-h: 84px; }
   body { font-size: 18px; }
@@ -450,25 +440,27 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
   .fleet { padding: 140px 0; }
 }
 
-/* Hero on small phones held sideways (short, wide viewports such as 667x375, 740x360, 844x390, 915x412):
-   headline + buttons on the left, the crew photo on the right so nobody is covered by the text,
-   everything inside the first screen. */
-@media (orientation: landscape) and (max-height: 540px) and (max-width: 1023px) {
-  .hero { --txt: 0px; min-height: calc(100vh - var(--header-h)); align-items: center; }
-  @supports (height: 1svh) { .hero { min-height: calc(100svh - var(--header-h)); } }
-  .hero__media { inset: 0 0 0 auto; width: 43%; height: auto; bottom: 0; }
-  .hero__media img { object-fit: cover; object-position: 47% 62%; }
-  .hero__shade { background: linear-gradient(90deg, #081636 0, #081636 55%, rgba(8,22,54,.72) 59%, rgba(8,22,54,.18) 66%, rgba(8,22,54,0) 72%); }
-  .hero__content { padding-top: 14px; padding-bottom: 16px; padding-right: calc(43% + 8px); }
-  .hero .eyebrow { font-size: .7rem; letter-spacing: .14em; margin-bottom: 8px; }
-  .hero h1 { font-size: clamp(2.3rem, 5.2vw, 3rem); line-height: .94; margin-bottom: 10px; max-width: 12ch; }
-  .hero__lead { font-size: .9rem; line-height: 1.45; margin-bottom: 14px; max-width: 34rem; }
-  .hero__ctas { display: flex; flex-wrap: wrap; gap: 10px; }
-  .hero__ctas .btn--lg { min-height: 44px; padding: 9px 16px; font-size: .95rem; gap: 8px; }
-  .hero__ctas .btn svg { width: 18px; height: 18px; }
+/* Desktop: blue panel is only as wide as the one-line headline needs (about half the older wide panel, never less than 28%).
+   The crew photo fills the rest, centred so every head and face stays in frame, including the tall man on the right. */
+@media (min-width: 1024px) {
+  .hb__band { --h1: clamp(1.75rem, 2.2vw, 2rem); --col: max(0px, (100% - 1200px) / 2); --panel: max(28%, calc(var(--col) + 20px + var(--h1) * 16 + 28px)); }
+  .hb__photo { width: calc(100% - var(--panel)); }
+  /* Fill the photo area. The frame is wide, so the crop is vertical: keep the crew centred and every head in view, including the tall man on the right. */
+  .hb__photo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 47% 42%; }
+  .hb__intro { padding-top: 30px; padding-bottom: 30px; padding-right: calc(100% - var(--panel) - var(--col) + 12px);
+    min-height: max(300px, 20vw); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+  .hb__intro .eyebrow { white-space: nowrap; }
+  .hb h1 { font-size: var(--h1); white-space: nowrap; }
+  .hb h1 span { font-size: .6em; margin-top: 6px; }
+  .hb__promise { font-size: 1.12rem; }
 }
-@media (orientation: landscape) and (max-height: 390px) and (max-width: 1023px) {
-  .hero__lead { font-size: .86rem; line-height: 1.4; margin-bottom: 12px; }
+/* Phones held sideways: keep the band short so the door builder stays in the first screen */
+@media (orientation: landscape) and (max-height: 540px) and (max-width: 1023px) {
+  .hb__photo { width: 34%; }
+  .hb__intro { padding-top: 12px; padding-bottom: 12px; padding-right: calc(34% + 12px); }
+  .hb h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  .hb h1 span { display: inline; font-size: 1em; color: var(--amber); }
+  .hb__promise { font-size: .9rem; }
 }
 
 /* Help button steps around door drawings (chat-place.js) */
@@ -513,7 +505,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .qcodes { margin: 10px 0 0; font-size: .88rem; color: #3b5bab; font-weight: 600; }
 
 /* the builder work area: steps (+ live drawing on desktop), finished doors, quote, hand-off */
-.builder-flow__work { padding-top: 36px; padding-bottom: 48px; --dp-head: var(--head); --dp-body: var(--body); --dp-ink: var(--ink); --dp-muted: var(--muted); --dp-line: var(--line); --dp-bg: var(--soft); --dp-accent-ink: var(--blue); --dp-radius: 14px; }
+.builder-flow__work { padding-top: 16px; padding-bottom: 48px; --dp-head: var(--head); --dp-body: var(--body); --dp-ink: var(--ink); --dp-muted: var(--muted); --dp-line: var(--line); --dp-bg: var(--soft); --dp-accent-ink: var(--blue); --dp-radius: 14px; }
 .builder-flow__main { min-width: 0; }
 .builder-flow__aside { display: none; }
 .bview { animation: bIn .28s ease-out; }
@@ -663,7 +655,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
 /* ---------- 640px and up ---------- */
 @media (min-width: 640px) {
-  .builder-flow__work { padding-top: 48px; }
+  .builder-flow__work { padding-top: 26px; }
   .bq { font-size: 1.9rem; }
   .opts { gap: 10px; }
   .opt { min-height: 64px; padding: 10px 14px; }
@@ -680,7 +672,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
 /* ---------- desktop ---------- */
 @media (min-width: 1024px) {
-  .builder-flow__work { padding-top: 56px; padding-bottom: 80px; }
+  .builder-flow__work { padding-top: 28px; padding-bottom: 80px; }
   .builder-flow__work[data-view="steps"] { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 44px; align-items: start; }
   .builder-flow__work[data-view="steps"] .builder-flow__aside { display: block; align-self: stretch; }
   .opts { grid-template-columns: repeat(2, 1fr); }
