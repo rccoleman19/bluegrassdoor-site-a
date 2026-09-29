@@ -110,9 +110,8 @@ body.nav-open { overflow: hidden; }
 .hb h1 span { display: block; margin-top: 4px; font-size: .64em; font-weight: 700; color: var(--amber); letter-spacing: .03em; }
 .hb__promise { margin: 0; font-size: .98rem; line-height: 1.4; color: #dce6ff; max-width: 40rem; }
 .hb__call a { color: #fff; font-weight: 700; white-space: nowrap; }
-/* Phones: a slightly tighter crop so faces and shirts read larger.
-   The window still opens above the tallest head, and the right edge stays put so nobody is cropped.
-   The headline sits under the photo, clear of faces. */
+/* Phones: centre the crew in the frame (a little left of the van) and keep the headline under them.
+   The small line and the main headline each stay on one centred line. */
 @media (max-width: 639px) {
   .hb__photo { height: clamp(200px, 62vw, 280px); overflow: hidden; }
   .hb__photo img {
@@ -120,13 +119,26 @@ body.nav-open { overflow: hidden; }
     width: 120%;
     height: auto;
     max-width: none;
-    right: 0;
-    left: auto;
+    left: 50%;
+    right: auto;
     top: 0;
-    transform: translateY(-23%);
+    transform: translate(-46%, -23%);
     object-fit: fill;
   }
   .hb__photo::after { background: linear-gradient(180deg, rgba(11,29,68,0) 78%, rgba(11,29,68,.7) 94%, var(--navy) 100%); }
+  .hb__intro { text-align: center; }
+  .hb__intro .eyebrow {
+    white-space: nowrap;
+    text-align: center;
+    font-size: clamp(0.55rem, 2.75vw, 0.78rem);
+    letter-spacing: .035em;
+  }
+  .hb__intro .eyebrow::before { display: none; }
+  .hb h1 {
+    white-space: nowrap;
+    font-size: clamp(1.02rem, 5.05vw, 1.55rem);
+  }
+  .hb__promise { margin-left: auto; margin-right: auto; }
 }
 @media (max-width: 639px) and (orientation: landscape) {
   .hb__photo img {
