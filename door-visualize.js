@@ -1,31 +1,35 @@
 /* Bluegrass Commercial Door & More: "See it on your building" (optional photo step on the door summary).
    The customer's photo is decoded, drawn and saved entirely in this browser tab. Nothing is uploaded or sent.
    The door artwork comes from door-preview.js (same config, same drawing code as the live preview), rasterised
-   once, then perspective-warped into four draggable corners with an exact per-pixel homography on a canvas. */
+   once, then perspective-warped onto the photo with an exact per-pixel homography. Drag the door to move it,
+   the edge bars to change width or height, or any corner freely (including on an angled photo). */
 (function () {
   "use strict";
   var DP = window.DoorPreview;
-  var entry = document.querySelector("[data-viz-entry]");
-  var openBtn = document.querySelector("[data-viz-open]");
-  if (!DP || !DP.openingSVG || !entry || !openBtn || !window.HTMLCanvasElement) return;
+  if (!DP || !DP.openingSVG || !window.HTMLCanvasElement) return;
 
   var MAX_EDGE = 2048;      // working photo size (long edge); phone photos are downscaled to this on the device
   var DISPLAY_MAX = 1600;   // on-screen canvas backing store (long edge)
   var TEX_H = 1400;         // door artwork raster height (px) before mip levels
   var NAMES = ["Top-left", "Top-right", "Bottom-right", "Bottom-left"];
+  /* Horizontal bars (top, bottom) change height only. Vertical bars (right, left) change width only.
+     pts are the two corners that move together, in the same order as NAMES. */
+  var EDGES = [
+    { axis: "y", orient: "h", pts: [0, 1], label: "Top edge of the door. Drag up or down to change the height." },
+    { axis: "x", orient: "v", pts: [1, 2], label: "Right edge of the door. Drag left or right to change the width." },
+    { axis: "y", orient: "h", pts: [2, 3], label: "Bottom edge of the door. Drag up or down to change the height." },
+    { axis: "x", orient: "v", pts: [3, 0], label: "Left edge of the door. Drag left or right to change the width." }
+  ];
   var HEIC_MSG = "We couldn't open that photo. It looks like a HEIC photo, which this browser can't read. Please choose a JPG or PNG instead (on an iPhone, a screenshot of the photo works too).";
   var BAD_MSG = "We couldn't open that file as a photo. Please choose a JPG or PNG photo of your doorway.";
   var SMALL_MSG = "That photo is too small to work with. Please choose a larger photo.";
   var mqLandscape = window.matchMedia("(orientation: landscape) and (max-height: 540px)");
   var mqWide = window.matchMedia("(min-width: 1024px) and (min-height: 541px)");
 
-  var dlg, els = {}, photo = null, tex = null, texKey = "", quad = null, lastFocus = null, raf = 0, dragging = -1, keypadShown = false;
+  var dlg, els = {}, photo = null, tex = null, texKey = "", quad = null, lastFocus = null, raf = 0, dragKind = "", dragIndex = -1, keypadShown = false, cur = null, curTag = "";
 
-  /* ---------- entry button: only when there is a door to show ---------- */
-  function syncEntry() { var c = DP.current; entry.hidden = !(c && !c.empty && c.product === "door"); }
-  document.addEventListener("doorbuilder:change", function () { setTimeout(syncEntry, 0); });
-  syncEntry();
-  openBtn.addEventListener("click", open);
+  /* ---------- opened from a finished door's "See it on your building" button (app.js) ---------- */
+  window.DoorVisualize = { open: function (cfg, tag) { open(cfg, tag); }, isOpen: function () { return !!dlg && !dlg.hidden; } };
 
   /* ---------- dialog markup (built on first use) ---------- */
   function build() {
@@ -35,7 +39,7 @@
     dlg.innerHTML =
       '<div class="viz__box">' +
         '<div class="viz__head"><h2 id="viz-title">See it on your building</h2>' +
-          '<button type="button" class="viz__close" data-viz-close aria-label="Close and go back to your door summary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' +
+          '<button type="button" class="viz__close" data-viz-close aria-label="Close and go back to your door"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' +
         '<p class="viz__door" data-viz-door></p>' +
         '<div class="viz__view viz__pick" data-viz-view="pick">' +
           '<p class="viz__lead">Take or choose a photo of the doorway, as straight on as you can. Then drag the four corners to fit the door into the opening.</p>' +
@@ -50,7 +54,9 @@
         '<div class="viz__view viz__fit" data-viz-view="fit" hidden>' +
           '<div class="viz__work">' +
             '<div class="viz__stage" data-viz-stage><canvas data-viz-canvas role="img" aria-label="Your photo with the door placed on it"></canvas>' +
+              '<svg class="viz__move" data-viz-move aria-hidden="true" focusable="false" preserveAspectRatio="none"><polygon data-viz-move-poly points="0,0 0,0 0,0 0,0"></polygon></svg>' +
               NAMES.map(function (n, i) { return '<button type="button" class="viz__handle" data-viz-handle="' + i + '" aria-label="' + n + ' corner of the door. Use the arrow keys to move it." aria-describedby="viz-help"><span></span></button>'; }).join("") +
+              EDGES.map(function (e, i) { return '<button type="button" class="viz__edge viz__edge--' + e.orient + '" data-viz-edge="' + i + '" aria-label="' + e.label + '"><span></span></button>'; }).join("") +
             '</div>' +
           '</div>' +
           '<div class="viz__side">' +
@@ -74,7 +80,9 @@
     els = {
       box: q(".viz__box"), door: q("[data-viz-door]"), pick: q('[data-viz-view="pick"]'), fit: q('[data-viz-view="fit"]'),
       error: q("[data-viz-error]"), stage: q("[data-viz-stage]"), canvas: q("[data-viz-canvas]"), work: q(".viz__work"),
-      handles: Array.prototype.slice.call(dlg.querySelectorAll("[data-viz-handle]")), help: q("[data-viz-help]"),
+      handles: Array.prototype.slice.call(dlg.querySelectorAll("[data-viz-handle]")),
+      edges: Array.prototype.slice.call(dlg.querySelectorAll("[data-viz-edge]")),
+      move: q("[data-viz-move]"), movePoly: q("[data-viz-move-poly]"), help: q("[data-viz-help]"),
       auto: q("[data-viz-auto]"), bright: q("[data-viz-bright]"), keypad: q("[data-viz-keypad]"),
       files: Array.prototype.slice.call(dlg.querySelectorAll("[data-viz-file]"))
     };
@@ -95,16 +103,18 @@
       var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) loadFile(f);
     });
     els.handles.forEach(function (h, i) { bindHandle(h, i); });
+    els.edges.forEach(function (h, i) { bindEdge(h, i); });
+    bindMove(els.movePoly);
     window.addEventListener("resize", function () { if (!dlg.hidden && photo) layout(); });
   }
 
   /* ---------- open / close ---------- */
-  function open() {
+  function open(cfg, tag) {
     if (!dlg) build();
-    var cfg = DP.current;
     if (!cfg || cfg.empty || cfg.product !== "door") return;
+    cur = cfg; curTag = tag || "";
     lastFocus = document.activeElement;
-    els.door.textContent = "Your door: " + cfg.summary;
+    els.door.textContent = (curTag ? curTag + ": " : "Your door: ") + cfg.summary;
     keypadShown = !!cfg.hardware.has.keypad;
     els.keypad.hidden = !keypadShown;
     dlg.hidden = false;
@@ -244,7 +254,7 @@
       var data = c.getContext("2d").getImageData(0, 0, c.width, c.height);
       photo = { canvas: c, w: c.width, h: c.height, data: data }; els.base = null;
       els.pick.classList.remove("is-busy");
-      return prepareDoor(DP.current).then(function () {
+      return prepareDoor(cur).then(function () {
         quad = defaultQuad();
         show("fit"); layout(); els.handles[0].focus({ preventScroll: true });
         dlg.setAttribute("data-ready", String(Date.now()));
@@ -305,32 +315,140 @@
     draw();
   }
   function placeHandles() {
+    if (!quad) return;
     var r = els.stage.getBoundingClientRect(), w = r.width, h = r.height;
     quad.forEach(function (p, i) { els.handles[i].style.transform = "translate(" + (p[0] * w).toFixed(1) + "px," + (p[1] * h).toFixed(1) + "px)"; });
+    els.edges.forEach(function (el, i) {
+      var a = quad[EDGES[i].pts[0]], b = quad[EDGES[i].pts[1]];
+      var x1 = a[0] * w, y1 = a[1] * h, x2 = b[0] * w, y2 = b[1] * h;
+      var ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+      var len = Math.hypot(x2 - x1, y2 - y1);
+      var shrink = len < 78 ? Math.max(0.5, len / 78) : 1;
+      el.style.transform = "translate(" + ((x1 + x2) / 2).toFixed(1) + "px," + ((y1 + y2) / 2).toFixed(1) + "px) rotate(" + ang.toFixed(2) + "deg) scale(" + shrink.toFixed(3) + ")";
+    });
+    if (w > 0 && h > 0) {
+      els.move.setAttribute("viewBox", "0 0 " + w.toFixed(2) + " " + h.toFixed(2));
+      els.movePoly.setAttribute("points", quad.map(function (p) { return (p[0] * w).toFixed(2) + "," + (p[1] * h).toFixed(2); }).join(" "));
+    }
+  }
+  function cloneQuad(q) { return q.map(function (p) { return [p[0], p[1]]; }); }
+  function limitDelta(src, indices, axis, delta) {
+    indices.forEach(function (i) {
+      var v = src[i][axis];
+      if (delta > 0) delta = Math.min(delta, 1 - v);
+      else delta = Math.max(delta, -v);
+    });
+    return delta;
+  }
+  function endDrag(kind, index, el) {
+    if (dragKind !== kind || dragIndex !== index) return;
+    dragKind = ""; dragIndex = -1;
+    if (el) el.classList.remove("is-drag");
+    document.documentElement.classList.remove("viz-moving", "viz-ns", "viz-ew");
+    schedule();
+  }
+  /* Window listeners so a drag keeps working after the pointer leaves the handle (mouse and touch). */
+  function watchPointer(pid, onMove, onEnd) {
+    var done = false;
+    function move(e) {
+      if (done) return;
+      if (typeof pid === "number" && e.pointerId !== pid) return;
+      onMove(e);
+    }
+    function end(e) {
+      if (done) return;
+      if (e && typeof pid === "number" && typeof e.pointerId === "number" && e.pointerId !== pid) return;
+      done = true;
+      window.removeEventListener("pointermove", move, true);
+      window.removeEventListener("pointerup", end, true);
+      window.removeEventListener("pointercancel", end, true);
+      onEnd();
+    }
+    window.addEventListener("pointermove", move, true);
+    window.addEventListener("pointerup", end, true);
+    window.addEventListener("pointercancel", end, true);
+    return end;
+  }
+  function armLost(el, finish) {
+    function onLost(e) { el.removeEventListener("lostpointercapture", onLost); finish(e); }
+    el.addEventListener("lostpointercapture", onLost);
   }
   function bindHandle(h, i) {
     var off = [0, 0];
     h.addEventListener("pointerdown", function (e) {
-      if (!quad) return;
-      e.preventDefault(); h.focus({ preventScroll: true });
+      if (!quad || dragKind || e.button > 0) return;
+      e.preventDefault(); e.stopPropagation();
+      h.focus({ preventScroll: true });
       try { h.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointers */ }
       var r = els.stage.getBoundingClientRect();
       off = [quad[i][0] * r.width - (e.clientX - r.left), quad[i][1] * r.height - (e.clientY - r.top)];
-      dragging = i; h.classList.add("is-drag");
+      dragKind = "corner"; dragIndex = i; h.classList.add("is-drag");
+      var finish = watchPointer(e.pointerId, function (ev) {
+        if (dragKind !== "corner" || dragIndex !== i) return;
+        var box = els.stage.getBoundingClientRect();
+        setCorner(i, (ev.clientX - box.left + off[0]) / box.width, (ev.clientY - box.top + off[1]) / box.height);
+      }, function () { endDrag("corner", i, h); });
+      armLost(h, finish);
     });
-    h.addEventListener("pointermove", function (e) {
-      if (dragging !== i) return;
-      var r = els.stage.getBoundingClientRect();
-      setCorner(i, (e.clientX - r.left + off[0]) / r.width, (e.clientY - r.top + off[1]) / r.height);
-    });
-    var end = function () { if (dragging !== i) return; dragging = -1; h.classList.remove("is-drag"); schedule(); };
-    h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end); h.addEventListener("lostpointercapture", end);
     h.addEventListener("keydown", function (e) {
       var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
-      if (!d || !quad) return;
+      if (!d || !quad || dragKind) return;
       e.preventDefault();
       var r = els.stage.getBoundingClientRect(), px = e.shiftKey ? 10 : 1;
       setCorner(i, quad[i][0] + d[0] * px / r.width, quad[i][1] + d[1] * px / r.height);
+    });
+  }
+  function bindEdge(h, i) {
+    h.addEventListener("pointerdown", function (e) {
+      if (!quad || dragKind || e.button > 0) return;
+      e.preventDefault(); e.stopPropagation();
+      h.focus({ preventScroll: true });
+      try { h.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointers */ }
+      var origin = { x: e.clientX, y: e.clientY, quad: cloneQuad(quad) };
+      dragKind = "edge"; dragIndex = i; h.classList.add("is-drag");
+      document.documentElement.classList.add(EDGES[i].axis === "y" ? "viz-ns" : "viz-ew");
+      var finish = watchPointer(e.pointerId, function (ev) {
+        if (dragKind !== "edge" || dragIndex !== i) return;
+        var box = els.stage.getBoundingClientRect(), meta = EDGES[i], axis = meta.axis === "x" ? 0 : 1;
+        var delta = axis === 0 ? (ev.clientX - origin.x) / (box.width || 1) : (ev.clientY - origin.y) / (box.height || 1);
+        delta = limitDelta(origin.quad, meta.pts, axis, delta);
+        quad = cloneQuad(origin.quad);
+        meta.pts.forEach(function (pi) { quad[pi][axis] = origin.quad[pi][axis] + delta; });
+        placeHandles(); schedule();
+      }, function () { endDrag("edge", i, h); });
+      armLost(h, finish);
+    });
+    h.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if (!d || !quad || dragKind) return;
+      var meta = EDGES[i], axis = meta.axis === "x" ? 0 : 1;
+      if (!d[axis]) { e.preventDefault(); return; }
+      e.preventDefault();
+      var r = els.stage.getBoundingClientRect(), px = e.shiftKey ? 10 : 1;
+      var delta = limitDelta(quad, meta.pts, axis, d[axis] * px / ((axis === 0 ? r.width : r.height) || 1));
+      meta.pts.forEach(function (pi) { quad[pi][axis] = quad[pi][axis] + delta; });
+      placeHandles(); schedule();
+    });
+  }
+  function bindMove(poly) {
+    poly.addEventListener("pointerdown", function (e) {
+      if (!quad || dragKind || e.button > 0) return;
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      if (hit && hit.closest && hit.closest("[data-viz-handle], [data-viz-edge]")) return;
+      e.preventDefault(); e.stopPropagation();
+      try { poly.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointers */ }
+      var origin = { x: e.clientX, y: e.clientY, quad: cloneQuad(quad) };
+      dragKind = "move"; dragIndex = 0; poly.classList.add("is-drag");
+      document.documentElement.classList.add("viz-moving");
+      var finish = watchPointer(e.pointerId, function (ev) {
+        if (dragKind !== "move") return;
+        var box = els.stage.getBoundingClientRect();
+        var dx = limitDelta(origin.quad, [0, 1, 2, 3], 0, (ev.clientX - origin.x) / (box.width || 1));
+        var dy = limitDelta(origin.quad, [0, 1, 2, 3], 1, (ev.clientY - origin.y) / (box.height || 1));
+        quad = origin.quad.map(function (p) { return [p[0] + dx, p[1] + dy]; });
+        placeHandles(); schedule();
+      }, function () { endDrag("move", 0, poly); });
+      armLost(poly, finish);
     });
   }
   function setCorner(i, x, y) {
@@ -451,6 +569,7 @@
       var url = URL.createObjectURL(blob), a = document.createElement("a");
       a.href = url; a.download = "my-building-with-new-door.jpg"; a.rel = "noopener";
       document.body.appendChild(a); a.click(); a.remove();
+      document.dispatchEvent(new CustomEvent("doorviz:download", { detail: { tag: curTag, file: a.download } }));
       setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
     };
     if (c.toBlob) c.toBlob(save, "image/jpeg", 0.9);
