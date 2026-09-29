@@ -98,8 +98,8 @@ body.nav-open { overflow: hidden; }
 /* Opening band: crew photo, short blue panel flush left, door builder directly under the text */
 .hb { background: #fff; }
 .hb__band { position: relative; background: var(--navy); color: #fff; overflow: hidden; }
-.hb__photo { position: relative; height: 92px; }
-.hb__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+.hb__photo { position: relative; height: clamp(150px, 42vw, 220px); }
+.hb__photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
 .hb__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,29,68,0) 30%, rgba(11,29,68,.75) 72%, var(--navy) 100%); }
 .hb__intro { position: relative; margin-top: -26px; padding-bottom: 16px; }
 .hb .eyebrow { margin-bottom: 8px; font-size: .72rem; letter-spacing: .1em; }
@@ -390,8 +390,8 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
   .hb__photo { position: absolute; inset: 0 0 0 auto; width: 42%; height: auto; }
-  .hb__photo img { object-position: 50% 70%; }
-  .hb__photo::after { background: linear-gradient(90deg, var(--navy) 0%, rgba(11,29,68,.55) 30%, rgba(11,29,68,.05) 70%); }
+  .hb__photo img { object-position: 50% 42%; }
+  .hb__photo::after { background: linear-gradient(90deg, var(--navy) 0%, rgba(11,29,68,.5) 8%, rgba(11,29,68,0) 22%); }
   .hb__intro { margin-top: 0; padding-top: 26px; padding-bottom: 26px; padding-right: calc(42% + 12px); }
   .hb h1 { font-size: clamp(2rem, 4.6vw, 2.6rem); }
   .trust__grid { grid-template-columns: repeat(4, 1fr); }
@@ -445,11 +445,10 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 @media (min-width: 1024px) {
   .hb__band { --h1: clamp(1.75rem, 2.2vw, 2rem); --col: max(0px, (100% - 1200px) / 2); --panel: max(28%, calc(var(--col) + 20px + var(--h1) * 16 + 28px)); }
   .hb__photo { width: calc(100% - var(--panel)); }
-  .hb__photo img { --iw: 60.7vw; --ih: calc(var(--iw) * .75); position: absolute; width: var(--iw); height: var(--ih); max-width: none; object-fit: cover;
-    left: clamp(calc(100% - var(--iw)), calc(50% - var(--iw) * .477), 0px);
-    top: clamp(calc(100% - var(--ih)), calc(50% - var(--ih) * .59), 0px); }
+  /* Fill the photo area. The frame is wide, so the crop is vertical: keep the crew centred and every head in view, including the tall man on the right. */
+  .hb__photo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 47% 42%; }
   .hb__intro { padding-top: 30px; padding-bottom: 30px; padding-right: calc(100% - var(--panel) - var(--col) + 12px);
-    min-height: max(250px, 16vw); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+    min-height: max(300px, 20vw); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
   .hb__intro .eyebrow { white-space: nowrap; }
   .hb h1 { font-size: var(--h1); white-space: nowrap; }
   .hb h1 span { font-size: .6em; margin-top: 6px; }
