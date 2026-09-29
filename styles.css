@@ -110,14 +110,14 @@ body.nav-open { overflow: hidden; }
 .hb h1 span { display: block; margin-top: 4px; font-size: .64em; font-weight: 700; color: var(--amber); letter-spacing: .03em; }
 .hb__promise { margin: 0; font-size: .98rem; line-height: 1.4; color: #dce6ff; max-width: 40rem; }
 .hb__call a { color: #fff; font-weight: 700; white-space: nowrap; }
-/* Phones: lift the crew above the headline. The text overlaps the bottom of the photo,
-   so the frame is taller and the picture sits higher, with a little ceiling left above the tallest head.
-   Extra width hangs off the left; the right edge stays put so the tall man is not cropped. */
+/* Phones: a slightly tighter crop so faces and shirts read larger.
+   The window still opens above the tallest head, and the right edge stays put so nobody is cropped.
+   The headline sits under the photo, clear of faces. */
 @media (max-width: 639px) {
   .hb__photo { height: clamp(200px, 62vw, 280px); overflow: hidden; }
   .hb__photo img {
     position: absolute;
-    width: 108%;
+    width: 120%;
     height: auto;
     max-width: none;
     right: 0;
