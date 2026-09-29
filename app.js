@@ -7,14 +7,6 @@
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.from((c || document).querySelectorAll(s)); };
 
-  /* ---------- Hero photo alt text follows the photo actually shown (crew photo on phones, van photo on wider screens) ---------- */
-  var heroImg = $(".hero__media img");
-  if (heroImg) {
-    var vanAlt = heroImg.getAttribute("alt"), teamAlt = heroImg.getAttribute("data-alt-team");
-    var syncAlt = function () { var src = heroImg.currentSrc || heroImg.src || ""; heroImg.alt = /team-in-front-of-shop/.test(src) ? teamAlt : vanAlt; };
-    heroImg.addEventListener("load", syncAlt); if (heroImg.complete) syncAlt();
-  }
-
   /* ---------- Year ---------- */
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
 
@@ -46,7 +38,7 @@
       entries.forEach(function (en) { if (en.isIntersecting) hideFor.add(en.target); else hideFor.delete(en.target); });
       callbar.classList.toggle("is-visible", hideFor.size === 0);
     }, { threshold: 0 });
-    [$(".hero__ctas"), $("#door-builder"), $(".footer")].forEach(function (el) { if (el) io.observe(el); });
+    [$(".hb__band"), $("#door-builder"), $(".footer")].forEach(function (el) { if (el) io.observe(el); });
   } else if (callbar) { callbar.classList.add("is-visible"); }
 
   /* ---------- Reveal on scroll ---------- */
