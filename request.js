@@ -21,7 +21,7 @@
     document.title = "Door quote request | Bluegrass Commercial Door & More";
     root.innerHTML = '<section class="rq-empty"><h1>We couldn\u2019t read this request</h1>' +
       "<p>The link may have been cut off when it was copied. Try opening it straight from the email, or build the door again on our website.</p>" +
-      '<p class="rq-acts"><a class="rq-btn rq-btn--primary" href="./#builder">Build a door</a> <a class="rq-btn" href="tel:+12707803235">Call 270-780-3235</a></p></section>';
+      '<p class="rq-acts"><a class="rq-btn rq-btn--primary" href="./">Back to our website</a> <a class="rq-btn" href="tel:+12707803235">Call 270-780-3235</a></p></section>';
   }
   function render() {
     var raw = param(), data = raw ? S.decode(raw) : null;

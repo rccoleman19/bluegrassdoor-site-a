@@ -99,10 +99,10 @@
   };
 
   /* =====================================================================
-   * Door builder (the homepage hero)
+   * Door builder: a step on this page, reached from the homepage.
    * steps (type, material, size, hardware) -> a finished door -> "Get a quote on this door" (in place)
-   * -> email hand-off. Several doors can go into one request. Rules: builder-rules.js. Catalog,
-   * spec text, links and the email: door-spec.js. Drawings: door-preview.js.
+   * -> saved for the office. Several doors can go into one request. Rules: builder-rules.js. Catalog,
+   * spec text, and links: door-spec.js. Drawings: door-preview.js.
    * ===================================================================== */
   var S = window.DoorSpec, R = window.BuilderRules, DP = window.DoorPreview;
   var reduceMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };

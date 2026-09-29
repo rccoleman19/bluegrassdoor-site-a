@@ -2,7 +2,7 @@
 
 Static website for Bluegrass Commercial Door & More, 930 Gordon Avenue, Bowling Green, KY 42101 · 270-780-3235.
 
-The homepage is the company site. From there, a visitor builds one or more doors, and only then asks for a quote on exactly those doors.
+This repository is the public website. There is one homepage. The door builder is a step on that page, reached from the homepage. It is not a separate page.
 
 - `index.html`: the page (homepage, services, about, reviews, projects, door builder, service area, contact)
 - `styles.css`: mobile-first styles (brand navy #0033A0, Barlow / Barlow Condensed)
@@ -11,7 +11,7 @@ The homepage is the company site. From there, a visitor builds one or more doors
 - `door-spec.js`: door catalog, the spec wording used on the page and in the saved request, and the link format (base64url JSON)
 - `door-preview.js` / `door-preview.css`: door drawings (live beside the steps on desktop, and on each finished door)
 - `door-visualize.js` / `door-visualize.css`: optional "See it on your building" step (the photo never leaves the visitor's device)
-- `request.html` / `request.js` / `request.css`: a quote request as the office sees it, drawn entirely from its own link (`request.html#b=...` or `?b=...`)
+- `request.html` / `request.js` / `request.css`: a saved quote as the office sees it, drawn from its own link (`request.html#b=...` or `?b=...`). A link with no request returns to the homepage. It is not another homepage.
 - `images/`: company photos and logo
 
 Quote requests are saved to the office's Supabase table `quote_requests` (project `bluegrassdoor`) with a plain `fetch` and the public publishable key; the website can add requests but never read them. Each saved request emails the office through the `notify-quote` function.
