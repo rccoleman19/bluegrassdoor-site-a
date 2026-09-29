@@ -17,8 +17,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg">
-  <link rel="stylesheet" href="styles.css?v=cc8">
+  <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg" media="(max-width: 1023px)">
+  <link rel="preload" as="image" href="images/crew-hero-desktop.jpg" media="(min-width: 1024px)">
+  <link rel="stylesheet" href="styles.css?v=cc9">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -106,7 +107,10 @@
     <section class="hb" id="builder" aria-labelledby="hero-title">
       <div class="hb__band">
         <div class="hb__photo">
-          <img src="images/crew-hero-enhanced.jpg" width="1920" height="1440" fetchpriority="high" alt="The Bluegrass Commercial Door &amp; More crew in blue company shirts in front of the shop in Bowling Green, Kentucky">
+          <picture>
+            <source media="(min-width: 1024px)" srcset="images/crew-hero-desktop.jpg">
+            <img src="images/crew-hero-enhanced.jpg" width="1920" height="1440" fetchpriority="high" alt="The Bluegrass Commercial Door &amp; More crew in blue company shirts in front of the shop in Bowling Green, Kentucky">
+          </picture>
         </div>
         <div class="wrap hb__intro">
           <p class="eyebrow eyebrow--light">Bluegrass Commercial Door &amp; More<span class="hb__eb-extra"> &middot; Family owned</span></p>
