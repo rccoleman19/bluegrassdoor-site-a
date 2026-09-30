@@ -709,10 +709,9 @@
     chatPanel.hidden = false; chatWrap.classList.add("is-open"); chatOpenBtn.setAttribute("aria-expanded", "true");
     if (!started) {
       started = true;
-      bot("Hi, welcome in. I'm Dory. I can help with doors, frames, and hardware. What would you like to know?");
+      bot("Hi, welcome in. I'm Dory. I'll try to help with anything I can, not just doors, and we also do flagpoles. What would you like to know?");
       history = [];
       var note = document.createElement("p"); note.className = "chat__note";
-      note.style.cssText = "margin:0;align-self:center;max-width:92%;font-size:.8rem;line-height:1.35;color:#5b6780;text-align:center;white-space:pre-line";
       note.textContent = "Dory is a virtual assistant for Bluegrass Commercial Door & More.\nPlease don't share private info.\nFor anything urgent, call " + PHONE + ".";
       chatLog.appendChild(note);
       renderChips(CHIPS);
@@ -773,7 +772,7 @@
     { k: /(thank|thanks|thx|appreciate)/i, r: function () {
       bot("You're welcome. If something else comes up, call " + PHONE + ", or build the door and send a quote request. We're here when you need us.", [CALL, { go: "builder", label: "Build my door", alt: true }]); } },
     { k: /^(hi|hello|hey|howdy|good (morning|afternoon|evening))\b/i, r: function () {
-      bot("Hello, welcome. We can help with doors, frames, and hardware. What's your question? You can also build the door or call " + PHONE + ".", [{ go: "builder", label: "Build my door" }, CALL]); } }
+      bot("Hello, welcome. I'll try to help with anything I can, not just doors, and we also do flagpoles. What's your question? You can also build the door or call " + PHONE + ".", [{ go: "builder", label: "Build my door" }, CALL]); } }
   ];
   var CHIP_MAP = { "Services": "services", "Scheduling & hours": "hours", "Service area": "service area", "Broken door": "broken door", "Get a quote": "quote", "Contact info": "contact" };
   function onTopic(text) {
@@ -782,7 +781,7 @@
   function answer(text) {
     for (var i = 0; i < INTENTS.length; i++) { if (INTENTS[i].k.test(text)) { INTENTS[i].r(); return; } }
     if (!onTopic(text)) {
-      bot("We only help with questions about <strong>Bluegrass Commercial Door &amp; More</strong>, like doors, frames, and hardware. If you have one of those, just ask. You can also build the door or call <strong>" + PHONE + "</strong>.", [{ go: "builder", label: "Build my door" }, CALL]);
+      bot("We only help with questions about <strong>Bluegrass Commercial Door &amp; More</strong>. I'll try to help with anything I can, not just doors, and we also do flagpoles. You can also build the door or call <strong>" + PHONE + "</strong>.", [{ go: "builder", label: "Build my door" }, CALL]);
       return;
     }
     bot("That's a good one for our team to walk through with you. Call <strong>" + PHONE + "</strong>, or build the door and send a quote request, and we'll take it from there.", [CALL, { go: "builder", label: "Build my door", alt: true }]);
