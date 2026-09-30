@@ -1,0 +1,9 @@
+/* Short contact path. Uses the site stylesheet; these rules only space this page. */
+.start h1 { font-size: clamp(2.2rem, 8vw, 3.4rem); font-weight: 800; text-transform: uppercase; }
+.start h2 { margin-top: 1.4em; }
+.start-facts { margin: 0; }
+.start-facts div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 8px 12px; padding: 8px 0; border-top: 1px solid var(--line); }
+.start-facts dt { font-weight: 700; color: var(--ink); }
+.start-facts dd { margin: 0; }
+.start-actions { margin: 8px 0 0; font-weight: 700; }
+.start-callbar { grid-template-columns: 1fr 1fr; }
