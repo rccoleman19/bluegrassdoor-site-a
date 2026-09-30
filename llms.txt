@@ -1,0 +1,81 @@
+# Bluegrass Commercial Door & More
+
+> Family-owned business at 930 Gordon Avenue, Bowling Green, KY 42101. Doors, frames, hardware, partitions, and flagpoles. Serves Warren County and surrounding jobs. Call 270-780-3235. Email sonya@bluegrassdoor.com.
+
+Plain brief for a bot or answer engine. Same public facts as the website. No prices, hours, ratings, or town list.
+
+Buying and deposits are not available online yet. The completed step is a quote request. The office follows up. Nothing on this website takes a payment.
+
+## Who
+
+- Name: Bluegrass Commercial Door & More
+- Address: 930 Gordon Avenue, Bowling Green, KY 42101
+- Phone: 270-780-3235
+- Email: sonya@bluegrassdoor.com
+- Public website: https://bluegrassdoor.com/
+
+## Services
+
+- Doors
+- Frames
+- Hardware
+- Partitions
+- Flagpoles
+
+Partitions are not in the quote forms. Call or email about partitions.
+
+## Reach a person
+
+- [Call 270-780-3235](tel:+12707803235)
+- [Email sonya@bluegrassdoor.com](mailto:sonya@bluegrassdoor.com)
+
+## What a standard door request includes
+
+One door, using the choices the door builder already offers:
+
+- Door type (`door_type`): `storefront` Storefront / Entrance, `hollow` Hollow Metal / Steel, `fire` Fire-Rated Door, `security` Security / Safe Room, `swing` Interior / Exterior Swing, `barn` Sliding Barn Door.
+- Material (`door_material`): one id offered for that type, or `recommend` (Recommend for me).
+  - storefront: `alglass` Aluminum & glass, `fullglass` All-glass entrance, `recommend`
+  - hollow: `steel` Hollow metal steel, `steellite` Steel with vision lite, `recommend`
+  - fire: `steel` Hollow metal steel, `wood` Wood, `recommend`
+  - security: `steel` Heavy-gauge steel, `steellite` Steel with security glass, `recommend`
+  - swing: `wood` Wood, `steel` Steel, `fiberglass` Fiberglass, `glasslite` Glass panel, `recommend`
+  - barn: `woodpanel` Wood panel, `frosted` Frosted glass, `recommend`
+- Size (`door_size`): `single` Single door, 3' × 7' (36" × 84"), `single8` Single door, 3' × 8' (36" × 96"), `pair` Pair of doors, 6' × 7' (72" × 84"), `custom` plus `door_width` and `door_height` in inches from 12 to 240, or `measure` Not sure.
+- Hardware (`door_hardware`, repeat the field for each choice): at least one, or Recommend for me.
+  - Not a barn door: Lever lockset, Deadbolt, Panic / exit device, Door closer, Keypad / access control, Hinges / pivots, Kick plate & accessories, Recommend for me.
+  - Barn door: Barn track hardware, Door pull / handle, Privacy latch, Soft-close, Recommend for me.
+- `door_quantity`: how many of that same door. Blank means 1. Maximum 500.
+- `door_location`: where it goes. Optional.
+- `name`: required.
+- `phone` or `email`: at least one.
+- `company`, `address` (project address or city), `timeline`, `notes`: optional.
+- `timeline`: As soon as possible, Within 1 month, 1–3 months, or Planning / bidding.
+
+What happens next: the request goes to the office, and the office follows up. It is not an instant purchase.
+
+The homepage door builder can send more than one different door. This form sends one door.
+
+## Door quote form
+
+- Human page: [Request a door quote](start.html#door-form)
+- Also: [Door builder on the homepage](index.html#builder), which saves a door quote the same way after the door is built.
+- Open `start.html#door-form`, set the fields above, and submit **Send my door quote request**. The page script must be running. It saves the quote request the same way the door builder does.
+- You get a reference. Buying and deposits are not available online.
+
+## Flagpole quote form
+
+No height, price, or deposit.
+
+- [Request a flagpole quote](start.html#flagpole-form)
+- The same form is on the [flagpoles page](flagpoles.html#quote).
+- Fields: `name` (required), `phone` or `email` (at least one), optional `company`, `address`, `timeline`, `notes`.
+- `timeline` uses the same four choices as a door quote.
+- Submit **Send my flagpole quote**. The saved request says it is a flagpole quote. The office follows up.
+
+## Pages
+
+- [Home](index.html): Company, services, door builder, and contact.
+- [Flagpoles](flagpoles.html): Flagpole photos and the flagpole quote form.
+- [Start a quote](start.html): Contact, the standard door facts, and both quote forms.
+- [Agent brief](llms.txt): This file.
