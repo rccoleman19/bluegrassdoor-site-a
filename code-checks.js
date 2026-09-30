@@ -26,6 +26,7 @@
   "use strict";
 
   var NOTE = "Suggestions only. Your local inspector has the final say. This isn't legal advice.";
+  var PHONE = "270-780-3235";
 
   /* where the job is */
   var JURIS = [
@@ -229,6 +230,39 @@
     "safe-room": "Safe room or storm shelter (ICC 500, FEMA)"
   };
   function jurisOf(v) { for (var i = 0; i < JURIS.length; i++) if (JURIS[i].v === v) return JURIS[i]; return null; }
+  /* elsewhere in Kentucky, Tennessee, and somewhere else need a zip or a place before notes can follow it */
+  function needsPlace(v) { return v === "ky" || v === "tn" || v === "other"; }
+  function cleanPlace(text) {
+    return String(text || "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
+  }
+  function placeLabel(text, juris) {
+    var t = cleanPlace(text);
+    if (!t) return (jurisOf(juris) || {}).t || "";
+    if (juris === "ky" && !/\b(?:kentucky|ky)\b/i.test(t)) return t + ", Kentucky";
+    if (juris === "tn" && !/\b(?:tennessee|tn)\b/i.test(t)) return t + ", Tennessee";
+    if (juris === "warren" && !/\b(?:kentucky|ky)\b/i.test(t)) return t + ", Kentucky";
+    return t;
+  }
+  function unavailableFor(label) {
+    return "Code notes are not available for " + label + ". Call " + PHONE + ".";
+  }
+  /* The typed zip or place picks the notes. Kentucky and Tennessee use the codes already in this file.
+     A place that does not match those, or Bowling Green / Warren County by name, is not guessed. */
+  function resolvePlace(text, selected) {
+    var raw = cleanPlace(text);
+    if (!raw) return { juris: selected, label: (jurisOf(selected) || {}).t || "", available: false, place: "", needPlace: true, unavailable: "" };
+    var guessed = guessJuris(raw);
+    if (guessed === "warren" || guessed === "ky" || guessed === "tn") {
+      return { juris: guessed, label: placeLabel(raw, guessed), available: true, place: raw, needPlace: false, unavailable: "" };
+    }
+    if (guessed === "other") {
+      return { juris: "other", label: raw, available: false, place: raw, needPlace: false, unavailable: unavailableFor(raw) };
+    }
+    if (selected === "ky" || selected === "tn") {
+      return { juris: selected, label: placeLabel(raw, selected), available: true, place: raw, needPlace: false, unavailable: "" };
+    }
+    return { juris: "other", label: raw, available: false, place: raw, needPlace: false, unavailable: unavailableFor(raw) };
+  }
   /* a guess from the project address the customer typed; null when there's nothing to go on */
   function guessJuris(text) {
     var t = String(text || "");
@@ -250,14 +284,32 @@
   }
   function useOk(rule, use) { return rule.use === "both" || !use || rule.use === use; }
 
-  /* doors: [{type, material, size, hardware:[labels], cw, ch, loc}], opts: {juris, use}
-     -> {juris, jurisLabel, use, useInferred, items:[{id, text, sources:[{cite,url}], doors:[1-based]}], note} */
+  function blankResult(j, extra) {
+    var use = extra.use, inferred = extra.inferred;
+    return {
+      juris: j.v, jurisLabel: extra.label || j.t, place: extra.place || "", use: use, useInferred: inferred,
+      items: [], note: NOTE, needPlace: !!extra.needPlace, unavailable: extra.unavailable || ""
+    };
+  }
+  /* doors: [{type, material, size, hardware:[labels], cw, ch, loc}], opts: {juris, use, place}
+     -> {juris, jurisLabel, place, use, useInferred, items:[{id, text, sources:[{cite,url}], doors:[1-based]}], note, needPlace, unavailable}
+     Bowling Green and Warren County keep their notes. The other three follow the typed zip or place.
+     A place with no verified code in this file does not get a guessed model code. */
   function evaluate(doors, opts) {
     opts = opts || {};
     doors = (doors || []).filter(function (d) { return d && d.type; });
-    var j = jurisOf(opts.juris) || jurisOf(DEFAULT_JURIS);
+    var selected = jurisOf(opts.juris) || jurisOf(DEFAULT_JURIS);
     var use = opts.use === "business" || opts.use === "home" ? opts.use : null, inferred = false;
     if (!use) { use = inferUse(doors); inferred = !!use; }
+    var j = selected, label = selected.t, place = "";
+    if (needsPlace(selected.v)) {
+      var found = resolvePlace(opts.place, selected.v);
+      if (!found.available) return blankResult(selected, { label: found.label, place: found.place, use: use, inferred: inferred, needPlace: found.needPlace, unavailable: found.unavailable });
+      j = jurisOf(found.juris) || selected;
+      label = found.label;
+      place = found.place;
+    }
+    if (j.g === "other") return blankResult(j, { label: label, place: place, use: use, inferred: inferred, unavailable: unavailableFor(label || "that place") });
     var c = { juris: j.v, g: j.g, use: use };
     var items = [];
     RULES.forEach(function (r) {
@@ -275,7 +327,7 @@
     });
     // notes about the doors themselves first, then where-the-job-is notes (permits, which code)
     items = items.filter(function (it) { return it.doors.length; }).concat(items.filter(function (it) { return !it.doors.length; }));
-    return { juris: j.v, jurisLabel: j.t, use: use, useInferred: inferred, items: items, note: NOTE };
+    return { juris: j.v, jurisLabel: label, place: place, use: use, useInferred: inferred, items: items, note: NOTE, needPlace: false, unavailable: "" };
   }
   function doorsLabel(item, total) {
     if (!item.doors.length || total < 2) return "";
@@ -284,16 +336,22 @@
   function useText(res) { return res.use === "business" ? "Business" + (res.useInferred ? " (from the door types)" : "") : res.use === "home" ? "Home" : "Not said (business or home)"; }
   /* saved with a quote request */
   function record(res, total) {
-    return {
-      location: res.jurisLabel, use: res.use || "not said", use_inferred: res.useInferred, note: res.note,
-      items: res.items.map(function (it) {
-        return { id: it.id, title: it.title, text: it.text, doors: doorsLabel(it, total) || (it.doors.length ? "All doors" : "Whole project"),
-          source: it.sources.map(function (x) { return x.cite; }).join("; "), url: it.sources.length ? it.sources[0].url : "", sources: it.sources };
-      })
-    };
+    var items = res.items.map(function (it) {
+      return { id: it.id, title: it.title, text: it.text, doors: doorsLabel(it, total) || (it.doors.length ? "All doors" : "Whole project"),
+        source: it.sources.map(function (x) { return x.cite; }).join("; "), url: it.sources.length ? it.sources[0].url : "", sources: it.sources };
+    });
+    if (!items.length && (res.unavailable || res.needPlace)) {
+      var why = res.unavailable || ("A zip code or the place the door will be installed was not given, so code notes were not added. Call " + PHONE + ".");
+      items = [{ id: "place", title: "Code notes", text: why, doors: "Whole project", source: "", url: "", sources: [] }];
+    }
+    return { location: res.jurisLabel, place: res.place || "", use: res.use || "not said", use_inferred: res.useInferred, note: res.note, items: items };
   }
   /* plain text for an email or a copied summary */
   function text(res, total) {
+    if (res.needPlace || res.unavailable) {
+      var why = res.unavailable || ("A zip code or the place the door will be installed was not given, so code notes were not added. Call " + PHONE + ".");
+      return ["LOCAL & STATE CODE: WORTH CHECKING (" + res.note + ")", "Location: " + (res.jurisLabel || "Not given"), why].join("\n");
+    }
     var L = ["LOCAL & STATE CODE: WORTH CHECKING (" + res.note + ")", "Location: " + res.jurisLabel, "Building: " + useText(res)];
     res.items.forEach(function (it) {
       var dl = doorsLabel(it, total);
@@ -304,6 +362,7 @@
   }
   /* compact list for a mailto: body (mail apps cut long links): titles only */
   function shortText(res, total) {
+    if (res.needPlace || res.unavailable) return text(res, total);
     var L = ["Local & state code, worth checking (" + res.note + ")", "Location: " + res.jurisLabel + ". Building: " + useText(res) + "."];
     res.items.forEach(function (it) { var dl = doorsLabel(it, total); L.push("- " + it.title + (dl ? " (" + dl + ")" : "")); });
     return L.join("\n");
@@ -314,5 +373,5 @@
     return out;
   }
   return { NOTE: NOTE, JURIS: JURIS, USES: USES, DEFAULT_JURIS: DEFAULT_JURIS, RULES: RULES, URLS: U,
-    evaluate: evaluate, guessJuris: guessJuris, inferUse: inferUse, jurisOf: jurisOf, record: record, text: text, shortText: shortText, TITLES: TITLES, doorsLabel: doorsLabel, useText: useText, allSources: allSources };
+    evaluate: evaluate, guessJuris: guessJuris, inferUse: inferUse, jurisOf: jurisOf, needsPlace: needsPlace, resolvePlace: resolvePlace, record: record, text: text, shortText: shortText, TITLES: TITLES, doorsLabel: doorsLabel, useText: useText, allSources: allSources, PHONE: PHONE };
 });

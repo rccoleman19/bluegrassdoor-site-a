@@ -106,7 +106,7 @@
   var clone = function (d) { var o = {}; for (var k in d) o[k] = d[k]; o.hardware = (d.hardware || []).slice(); return o; };
   var state = blank(), step = 1, MAX = 4;
   var doors = [], editing = -1, view = "steps";
-  var CC = window.CodeChecks, code = { juris: CC ? CC.DEFAULT_JURIS : "warren", picked: false, fromAddr: false, use: null, all: false };
+  var CC = window.CodeChecks, code = { juris: CC ? CC.DEFAULT_JURIS : "warren", place: "", picked: false, fromAddr: false, use: null, all: false };
   var lastAction = "", photoSaved = false, reqRef = "", reqSig = "", reqSaved = false, reqTries = 0, lastRemoved = null, drawRev = 0;
   var work = $("#door-builder");
   var btnNext = $("#b-next"), btnBack = $("#b-back"), btnCancel = $("#b-cancel"), btnSave = $("#b-save");
@@ -356,7 +356,7 @@
     renderCodes();
   }
   /* ---------- local & state code suggestions (code-checks.js). Optional: nothing here blocks the quote ---------- */
-  function codeResult() { return CC ? CC.evaluate(doors, { juris: code.juris, use: code.use }) : null; }
+  function codeResult() { return CC ? CC.evaluate(doors, { juris: code.juris, use: code.use, place: code.place }) : null; }
   var SHOW_FIRST = 3;
   function renderCodes() {
     var box = $("#codes"); if (!box) return;
@@ -365,11 +365,26 @@
     var sel = $("#code-juris");
     if (!sel.options.length) sel.innerHTML = CC.JURIS.map(function (j) { return '<option value="' + j.v + '">' + esc(j.t) + "</option>"; }).join("");
     sel.value = code.juris;
-    $("#code-juris-hint").textContent = code.fromAddr && !code.picked ? "Picked from the project address you typed. Change it if that's not right." :
-      code.juris === CC.DEFAULT_JURIS ? "Most of our jobs are in Warren County, KY. Change it if your project is elsewhere." : "Change it any time.";
+    var placeWrap = $("#code-place-wrap"), placeInput = $("#code-place");
+    var askPlace = CC.needsPlace(code.juris);
+    if (placeWrap) placeWrap.hidden = !askPlace;
+    if (placeInput && placeInput.value !== code.place) placeInput.value = code.place;
     var res = codeResult(), total = doors.length;
+    var hint = $("#code-juris-hint");
+    if (askPlace && res.needPlace) hint.textContent = "Type a zip code or the place the door will be installed. The notes will follow that place.";
+    else if (res.unavailable) hint.textContent = "We don't have verified notes for that place. You can still send the quote.";
+    else if (askPlace && res.juris === "ky" && /^\d{5}(?:-\d{4})?$/.test(String(res.place || "").trim())) hint.textContent = "Notes for " + res.jurisLabel + ". If the door is inside Bowling Green or in Warren County outside the city, choose that above.";
+    else if (askPlace) hint.textContent = "Notes for " + res.jurisLabel + ". Change the place if that's not right.";
+    else if (code.fromAddr && !code.picked) hint.textContent = "Picked from the project address you typed. Change it if that's not right.";
+    else if (code.juris === CC.DEFAULT_JURIS) hint.textContent = "Most of our jobs are in Warren County, KY. Change it if your project is elsewhere.";
+    else hint.textContent = "Change it any time.";
     $$(".codes__use button").forEach(function (b) { b.setAttribute("aria-pressed", code.use === b.getAttribute("data-use") ? "true" : "false"); });
     $("#code-use-hint").textContent = code.use ? "" : res.useInferred ? "Showing business notes because of the door types. Tap Home if it's a house." : "Not sure? We're showing notes for both. Tap Business or Home to narrow them down.";
+    var miss = $("#code-miss");
+    if (miss) {
+      if (res.unavailable) { miss.hidden = false; miss.innerHTML = esc(res.unavailable).replace(/270-780-3235/g, '<a href="' + TEL + '">270-780-3235</a>'); }
+      else { miss.hidden = true; miss.textContent = ""; }
+    }
     var many = res.items.length > SHOW_FIRST + 1 && !code.all;
     $("#code-list").innerHTML = res.items.map(function (it, k) {
       var dl = CC.doorsLabel(it, total);
@@ -381,8 +396,23 @@
     more.textContent = code.all ? "Show fewer" : "Show all " + res.items.length + " suggestions";
     more.setAttribute("aria-expanded", code.all ? "true" : "false");
   }
+  function codeSpoken(res) {
+    if (!res) return "";
+    if (res.needPlace) return "Type a zip code or the place the door will be installed.";
+    if (res.unavailable) return res.unavailable;
+    return "Suggestions updated for " + res.jurisLabel + ".";
+  }
   if ($("#codes")) {
-    $("#code-juris").addEventListener("change", function () { code.juris = this.value; code.picked = true; renderCodes(); say($("#code-live"), "Suggestions updated for " + CC.jurisOf(code.juris).t + "."); });
+    $("#code-juris").addEventListener("change", function () {
+      var prev = code.juris;
+      code.juris = this.value; code.picked = true; renderCodes();
+      if (CC.needsPlace(code.juris) && !CC.needsPlace(prev)) $("#code-place").focus();
+      say($("#code-live"), codeSpoken(codeResult()));
+    });
+    $("#code-place").addEventListener("input", function () {
+      code.place = this.value; code.picked = true; renderCodes();
+      say($("#code-live"), codeSpoken(codeResult()));
+    });
     $(".codes__use").addEventListener("click", function (e) {
       var b = e.target.closest("button[data-use]"); if (!b) return;
       var u = b.getAttribute("data-use"); code.use = code.use === u ? null : u; renderCodes();
@@ -393,15 +423,24 @@
   // until the customer picks a location, the project address (quote form) can set it
   function codeFromAddr() {
     if (!CC || code.picked) return;
-    var g = CC.guessJuris($("#q-addr").value);
-    if (g) { code.juris = g; code.fromAddr = true; } else if (code.fromAddr) { code.juris = CC.DEFAULT_JURIS; code.fromAddr = false; }
+    var addr = $("#q-addr").value;
+    var g = CC.guessJuris(addr);
+    if (g) {
+      code.juris = g; code.fromAddr = true;
+      if (CC.needsPlace(g)) code.place = addr.trim().slice(0, 80);
+    } else if (code.fromAddr) { code.juris = CC.DEFAULT_JURIS; code.place = ""; code.fromAddr = false; }
+    renderCodes();
     updateQuoteCodes();
   }
   function updateQuoteCodes() {
     var el = $("#q-codes"); if (!el || !CC) return;
-    var n = doors.length ? codeResult().items.length : 0;
+    var res = doors.length ? codeResult() : null;
+    if (!res) { el.hidden = true; return; }
+    if (res.needPlace) { el.hidden = false; el.textContent = "Add a zip code or place to include local code notes."; return; }
+    if (res.unavailable) { el.hidden = false; el.textContent = res.unavailable; return; }
+    var n = res.items.length;
     el.hidden = !n;
-    el.textContent = n + " local & state code suggestion" + (n === 1 ? "" : "s") + " included (" + CC.jurisOf(code.juris).t + ")";
+    el.textContent = n + " local & state code suggestion" + (n === 1 ? "" : "s") + " included (" + res.jurisLabel + ")";
   }
   function setQty(i, q) {
     q = Math.max(1, Math.min(500, parseInt(q, 10) || 1));
@@ -522,7 +561,7 @@
   function sendRequest(c) {
     if (sending) return;
     var btn = $("#q-submit"), photo = photoSaved && $("#q-photo-yes").checked;
-    var url = BASE + "request.html#b=" + S.encode(S.requestPayload(doors, c, reqRef, new Date(), { j: code.juris, u: code.use }));
+    var url = BASE + "request.html#b=" + S.encode(S.requestPayload(doors, c, reqRef, new Date(), { j: code.juris, u: code.use, p: CC && CC.needsPlace(code.juris) ? code.place : "" }));
     var buildUrl = BASE + "#build=" + S.encode(S.buildPayload(doors, reqRef));
     var notes = c.x + (photo ? (c.x ? "\n\n" : "") + "Photo: I have a photo of the new door on my building. Please ask me for it." : "");
     var row = {

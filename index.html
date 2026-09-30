@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg" media="(max-width: 1023px)">
   <link rel="preload" as="image" href="images/crew-hero-desktop.jpg" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="styles.css?v=cc10">
+  <link rel="stylesheet" href="styles.css?v=cc12">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -185,6 +185,10 @@
                 <div class="codes__field">
                   <label for="code-juris">Where&rsquo;s the job?</label>
                   <select id="code-juris"></select>
+                  <div class="codes__place" id="code-place-wrap" hidden>
+                    <label for="code-place">Zip code or the place the door will be installed</label>
+                    <input id="code-place" type="text" inputmode="text" maxlength="80" autocomplete="off" aria-describedby="code-juris-hint">
+                  </div>
                   <p class="codes__hint" id="code-juris-hint">Most of our jobs are in Warren County, KY. Change it if your project is elsewhere.</p>
                 </div>
                 <div class="codes__field">
@@ -196,6 +200,7 @@
                   <p class="codes__hint" id="code-use-hint"></p>
                 </div>
               </div>
+              <p class="codes__miss" id="code-miss" hidden></p>
               <ul class="codes__list" id="code-list"></ul>
               <button type="button" class="btn btn--text codes__more" id="code-more" aria-controls="code-list" hidden></button>
               <p class="sr-only" id="code-live" aria-live="polite"></p>
@@ -666,9 +671,9 @@
 
   <script src="door-preview.js?v=dim2"></script>
   <script src="builder-rules.js?v=viz1"></script>
-  <script src="door-spec.js?v=spec1"></script>
-  <script src="code-checks.js?v=cc1"></script>
-  <script src="app.js?v=cc4"></script>
+  <script src="door-spec.js?v=spec2"></script>
+  <script src="code-checks.js?v=cc2"></script>
+  <script src="app.js?v=cc6"></script>
   <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz2"></script>
 </body>
