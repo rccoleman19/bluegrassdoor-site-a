@@ -10,7 +10,7 @@ var path = require("path");
 var { spawn } = require("child_process");
 
 var ROOT = __dirname;
-var GREETING = "Hi, welcome in. I'm Dory. I can help with doors, frames, and hardware. What would you like to know?";
+var GREETING = "Hi, welcome in. I'm Dory. I'll try to help with anything I can, not just doors, and we also do flagpoles. What would you like to know?";
 var TITLE = "Dory";
 var PHONE = "270-780-3235";
 var NOTE = "Dory is a virtual assistant for Bluegrass Commercial Door & More.\nPlease don't share private info.\nFor anything urgent, call " + PHONE + ".";
