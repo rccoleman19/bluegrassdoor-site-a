@@ -540,7 +540,11 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .codes__ctl { display: grid; gap: 12px; margin-bottom: 12px; }
 .codes__field label, .codes__label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 6px; color: var(--ink); }
 .codes__field select { width: 100%; min-height: 46px; }
+.codes__place { margin-top: 10px; }
+.codes__place[hidden] { display: none; }
 .codes__hint { margin: 6px 0 0; font-size: .88rem; color: var(--muted); line-height: 1.4; }
+.codes__miss { margin: 0 0 10px; padding: 12px 14px; border-radius: 10px; background: #fff; border-left: 3px solid #6b86c9; font-size: .93rem; line-height: 1.5; color: var(--text); }
+.codes__miss a { color: var(--blue); font-weight: 700; }
 .codes__use { display: flex; gap: 8px; }
 .codes__use button { flex: 1 1 0; min-height: 46px; border-radius: 10px; border: 1.5px solid #c9d6f3; background: #fff; color: var(--blue); font: inherit; font-weight: 700; cursor: pointer; }
 .codes__use button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
