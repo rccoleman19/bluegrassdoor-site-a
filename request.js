@@ -70,15 +70,23 @@
     h.push("</section></div>");
     var CC = window.CodeChecks;
     if (CC && data.juris && CC.jurisOf(data.juris)) {
-      var res = CC.evaluate(doors, { juris: data.juris, use: data.use || null });
-      if (res.items.length) {
+      var res = CC.evaluate(doors, { juris: data.juris, use: data.use || null, place: data.place || "" });
+      var note = esc(res.note) + " Location: <strong>" + esc(res.jurisLabel) + "</strong>";
+      if (!res.needPlace && !res.unavailable) note += " &middot; Building: <strong>" + esc(CC.useText(res)) + "</strong>";
+      var body = "";
+      if (res.unavailable || res.needPlace) {
+        var why = res.unavailable || "A zip code or the place the door will be installed was not given, so code notes were not added. Call 270-780-3235.";
+        body = '<p class="rq-codes__note">' + esc(why).replace(/270-780-3235/g, '<a href="tel:+12707803235">270-780-3235</a>') + "</p>";
+      } else if (res.items.length) {
+        body = "<ul>" + res.items.map(function (it) {
+          var dl = CC.doorsLabel(it, n);
+          return '<li data-code="' + esc(it.id) + '">' + (dl ? '<span class="rq-codes__doors">' + esc(dl) + "</span> " : "") + esc(it.text) +
+            '<span class="rq-codes__src">Source: ' + it.sources.map(function (x) { return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.cite) + "</a>"; }).join(" &middot; ") + "</span></li>";
+        }).join("") + "</ul>";
+      }
+      if (body) {
         h.push('<section class="rq-card rq-codes" aria-labelledby="rq-codes-h"><h2 id="rq-codes-h">Local &amp; state code: worth checking</h2>' +
-          '<p class="rq-codes__note">' + esc(res.note) + " Location: <strong>" + esc(res.jurisLabel) + "</strong> &middot; Building: <strong>" + esc(CC.useText(res)) + "</strong></p><ul>" +
-          res.items.map(function (it) {
-            var dl = CC.doorsLabel(it, n);
-            return '<li data-code="' + esc(it.id) + '">' + (dl ? '<span class="rq-codes__doors">' + esc(dl) + "</span> " : "") + esc(it.text) +
-              '<span class="rq-codes__src">Source: ' + it.sources.map(function (x) { return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.cite) + "</a>"; }).join(" &middot; ") + "</span></li>";
-          }).join("") + "</ul></section>");
+          '<p class="rq-codes__note">' + note + "</p>" + body + "</section>");
       }
     }
     root.innerHTML = h.join("");
