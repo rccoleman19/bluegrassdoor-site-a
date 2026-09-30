@@ -1,0 +1,37 @@
+# Bluegrass Commercial Door & More
+
+> Family-owned business at 930 Gordon Avenue, Bowling Green, KY 42101. Doors, frames, hardware, partitions, and flagpoles. Serves Warren County and surrounding jobs. Call 270-780-3235. Email sonya@bluegrassdoor.com.
+
+Plain brief for a bot or answer engine. Same public facts as the website. No prices, hours, ratings, or town list.
+
+## Who
+
+- Name: Bluegrass Commercial Door & More
+- Address: 930 Gordon Avenue, Bowling Green, KY 42101
+- Phone: 270-780-3235
+- Email: sonya@bluegrassdoor.com
+- Public website: https://bluegrassdoor.com/
+
+## Services
+
+- Doors
+- Frames
+- Hardware
+- Partitions
+- Flagpoles
+
+## Reach a person
+
+- [Call 270-780-3235](tel:+12707803235)
+- [Email sonya@bluegrassdoor.com](mailto:sonya@bluegrassdoor.com)
+
+## Start a job
+
+- [Request a door quote](index.html#builder): Open the door builder on the homepage. Build the door, then send the quote request from that page.
+- [Request a flagpole quote](flagpoles.html#quote): Open the flagpoles page and send the flagpole quote form.
+
+## Pages
+
+- [Home](index.html): Company, services, door builder, and contact.
+- [Flagpoles](flagpoles.html): Flagpole photos and the flagpole quote form.
+- [Start a quote](start.html): Short page with these same facts and actions.
