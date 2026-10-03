@@ -1,0 +1,24 @@
+/* Shop: browse doors, frames, hardware, and flagpoles, then open an existing quote. */
+.shop h1 { font-size: clamp(2.4rem, 8vw, 3.6rem); font-weight: 800; text-transform: uppercase; }
+.shop-note { background: #fff8e8; border: 1px solid #f0d48a; border-radius: 12px; padding: 14px 16px; margin: 0 0 1em; }
+.shop-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 8px; }
+.shop-filters button {
+  min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 2px solid var(--blue);
+  background: #fff; color: var(--blue); font-family: var(--body); font-size: 1rem; font-weight: 700; cursor: pointer;
+}
+.shop-filters button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+.shop-group { margin-top: 28px; }
+.shop-group h2 { margin-bottom: 8px; }
+.shop-group > p { color: var(--muted); }
+.shop-hw { display: grid; gap: 12px; }
+.shop-hw article {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.shop-hw h3 { font-size: 1.35rem; margin: 0; }
+.shop-hw p { margin: 0; color: var(--muted); }
+.shop-hw .svc__link { margin-top: 8px; }
+.shop-callbar { grid-template-columns: 1.4fr 1fr; }
+@media (min-width: 700px) {
+  .shop-hw { grid-template-columns: 1fr 1fr; }
+}

@@ -645,7 +645,11 @@
   }
   window.addEventListener("hashchange", function () { if (openFromHash()) { reveal(work, true); focusEl($("#built-title")); } });
   renderStep(); // (with a shared link open, this keeps the hidden steps and the preview in a clean state)
-  openFromHash();
+  if (!openFromHash()) {
+    var presetDoor = "";
+    try { presetDoor = new URLSearchParams(location.search).get("door") || ""; } catch (e1) { presetDoor = ""; }
+    if (presetDoor && S.find(S.TYPES, presetDoor)) startDoor({ type: presetDoor });
+  }
 
 
   /* ---------- Help chat ---------- */
