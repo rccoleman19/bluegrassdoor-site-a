@@ -76,6 +76,7 @@ No height, price, or deposit.
 ## Pages
 
 - [Home](index.html): Company, services, door builder, and contact.
+- [Shop](shop.html): Doors, frames, hardware, and flagpoles. Each item opens an existing quote page. No checkout and no prices.
 - [Flagpoles](flagpoles.html): Flagpole photos and the flagpole quote form.
 - [Start a quote](start.html): Contact, the standard door facts, and both quote forms.
 - [Agent brief](llms.txt): This file.
