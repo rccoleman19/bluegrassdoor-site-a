@@ -19,6 +19,35 @@
 .shop-hw p { margin: 0; color: var(--muted); }
 .shop-hw .svc__link { margin-top: 8px; }
 .shop-callbar { grid-template-columns: 1.4fr 1fr; }
+.shop-add { width: 100%; margin-top: 8px; }
+.qlist {
+  background: #fff; border: 2px solid var(--blue); border-radius: 16px; padding: 16px 16px 18px;
+  margin: 0 0 28px; box-shadow: var(--shadow);
+}
+.qlist__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.qlist h2 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.2rem); }
+.qlist__count { margin: 0; font-weight: 700; color: var(--blue); }
+.qlist__items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.qlist__items li {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  background: var(--soft); border-radius: 10px; padding: 10px 12px; min-height: 52px;
+}
+.qlist__kind { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); }
+.qlist__name { font-weight: 700; color: var(--ink); }
+.qlist__items .btn { min-height: 40px; padding: 6px 10px; }
+.qlist .qform { margin-top: 14px; }
+#ql-list-err.is-on, #ql-send-err.is-on { display: block; }
+.qlist-bar {
+  position: sticky; top: var(--header-h); z-index: 40; background: var(--navy); color: #fff;
+  border-bottom: 3px solid var(--amber);
+}
+.qlist-bar__in { display: flex; align-items: center; gap: 14px; min-height: 48px; padding-top: 8px; padding-bottom: 8px; }
+.qlist-bar a { color: var(--amber); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.qlist-bar p { margin: 0; color: #dce6ff; }
+@media (min-width: 900px) {
+  .qlist__body { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  .qlist .qform { margin-top: 0; }
+}
 @media (min-width: 700px) {
   .shop-hw { grid-template-columns: 1fr 1fr; }
 }
