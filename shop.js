@@ -1,7 +1,12 @@
-/* Shop filters and the same menu used on the other pages. */
+/* Shop filters, the quote list, and the same menu used on the other pages.
+   The list is sent with the same quote request the door builder and the flagpole page already use. */
 (function () {
   "use strict";
   var $ = function (s) { return document.querySelector(s); };
+  var S = window.DoorSpec;
+  var PHONE = "270-780-3235";
+  var QUOTE_API = { url: "https://esrwugfaqlwttxmfkpkx.supabase.co/rest/v1/quote_requests", key: "sb_publishable_aOUQv3tbsDOP4eTDjbyA6w_RKZBxx8K" };
+  var STORE = "bgd-shop-quote";
   var year = $("#year"); if (year) year.textContent = new Date().getFullYear();
 
   var nav = $("#site-nav"), toggle = document.querySelector(".menu-toggle");
@@ -44,4 +49,227 @@
     });
     window.addEventListener("hashchange", function () { apply(kindFromHash()); });
   }
+
+  var items = [];
+  function load() {
+    try {
+      var raw = sessionStorage.getItem(STORE);
+      var parsed = raw ? JSON.parse(raw) : [];
+      items = [];
+      if (!parsed || !parsed.length) return;
+      for (var i = 0; i < parsed.length && items.length < 20; i++) {
+        var it = parsed[i];
+        if (!it || !it.label || !it.kind) continue;
+        items.push({ kind: String(it.kind), type: String(it.type || ""), label: String(it.label).slice(0, 80) });
+      }
+    } catch (e1) { items = []; }
+  }
+  function save() {
+    try { sessionStorage.setItem(STORE, JSON.stringify(items)); } catch (e2) {}
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function kindWord(kind) {
+    if (kind === "door") return "Door";
+    if (kind === "frame") return "Frame";
+    if (kind === "hardware") return "Hardware";
+    return "Flagpole";
+  }
+  function plainLine(it) {
+    if (it.kind === "flagpole") return "Flagpole";
+    return kindWord(it.kind) + ": " + it.label;
+  }
+  function render() {
+    var list = $("#qlist-items"), empty = $("#qlist-empty"), form = $("#qlist-form");
+    var n = items.length;
+    $("#qlist-count").textContent = n === 0 ? "Nothing added yet." : (n === 1 ? "1 item" : n + " items");
+    var call = $("#qlist-call");
+    if (call) call.textContent = n ? "Your quote (" + n + ")" : "Your quote";
+    var stick = $("#qlist-bar"), names = $("#qlist-bar-names"), link = $("#qlist-bar-link");
+    if (stick) {
+      stick.hidden = n === 0;
+      if (link) link.textContent = n === 1 ? "Your quote, 1 item" : "Your quote, " + n + " items";
+      if (names) {
+        var bits = [];
+        for (var i = 0; i < items.length; i++) bits.push(plainLine(items[i]));
+        names.textContent = bits.join(" · ");
+      }
+    }
+    if (empty) empty.hidden = n !== 0;
+    if (form) form.hidden = n === 0;
+    if (!list) return;
+    var html = "";
+    for (var k = 0; k < items.length; k++) {
+      var it = items[k];
+      html += "<li><span><span class=\"qlist__kind\">" + esc(kindWord(it.kind)) + "</span><span class=\"qlist__name\">" + esc(it.kind === "flagpole" ? "Flagpole" : it.label) + "</span></span>" +
+        "<button type=\"button\" class=\"btn btn--text\" data-remove=\"" + k + "\">Remove</button></li>";
+    }
+    list.innerHTML = html;
+  }
+  function addItem(kind, type, label) {
+    if (!kind || !label || items.length >= 20) return;
+    var done = $("#qlist-done"); if (done) done.hidden = true;
+    items.push({ kind: kind, type: type || "", label: label });
+    save();
+    render();
+    $("#qlist-count").textContent = "Added " + (kind === "flagpole" ? "Flagpole" : label) + ". " + (items.length === 1 ? "1 item" : items.length + " items") + " in your quote.";
+  }
+  document.addEventListener("click", function (e) {
+    var add = e.target.closest && e.target.closest("[data-add]");
+    if (add) {
+      addItem(add.getAttribute("data-add"), add.getAttribute("data-type") || "", add.getAttribute("data-label") || "");
+      return;
+    }
+    var rm = e.target.closest && e.target.closest("[data-remove]");
+    if (!rm) return;
+    var idx = parseInt(rm.getAttribute("data-remove"), 10);
+    if (!isFinite(idx) || idx < 0 || idx >= items.length) return;
+    var next = [];
+    for (var i = 0; i < items.length; i++) if (i !== idx) next.push(items[i]);
+    items = next;
+    save();
+    render();
+  });
+
+  function fieldErr(el, bad) {
+    var field = el.closest ? el.closest(".field") : null;
+    if (field) field.classList.toggle("is-invalid", bad);
+    el.setAttribute("aria-invalid", bad ? "true" : "false");
+  }
+  function checkName() {
+    var el = $("#ql-name"), bad = !el.value.trim();
+    fieldErr(el, bad);
+    if (bad) el.setAttribute("aria-describedby", "ql-name-err"); else el.removeAttribute("aria-describedby");
+    return !bad;
+  }
+  function emailOk(ev) {
+    if (!ev) return true;
+    var at = ev.indexOf("@");
+    if (at < 1 || ev.indexOf("@", at + 1) !== -1) return false;
+    var domain = ev.slice(at + 1);
+    var dot = domain.lastIndexOf(".");
+    if (dot < 1 || domain.length - dot < 3) return false;
+    var bad = " <>\"'";
+    for (var i = 0; i < ev.length; i++) if (bad.indexOf(ev.charAt(i)) >= 0 || ev.charAt(i) === " ") return false;
+    return true;
+  }
+  function checkReach() {
+    var p = $("#ql-phone"), e = $("#ql-email"), pv = p.value.trim(), ev = e.value.trim(), msg = "";
+    var pOk = !pv || pv.replace(/\D/g, "").length >= 7;
+    var eOk = emailOk(ev);
+    if (!pv && !ev) msg = "Please give us a phone number or an email address.";
+    else if (!pOk) msg = "Please check the phone number (at least 7 digits).";
+    else if (!eOk) msg = "That email address doesn't look quite right.";
+    var set = $("#ql-reach");
+    set.classList.toggle("is-invalid", !!msg);
+    $("#ql-reach-err").textContent = msg || "Please give us a phone number or an email address.";
+    fieldErr(p, !!msg && (!pOk || (!pv && !ev)));
+    fieldErr(e, !!msg && (!eOk || (!pv && !ev)));
+    [p, e].forEach(function (x) { if (msg) x.setAttribute("aria-describedby", "ql-reach-err"); else x.removeAttribute("aria-describedby"); });
+    return !msg;
+  }
+  function showErr(id, on) {
+    var el = $(id);
+    if (!el) return;
+    el.classList.toggle("is-on", !!on);
+  }
+  function doorRow(it, i) {
+    var know;
+    if (it.kind === "flagpole") know = ["This is a flagpole quote."];
+    else if (it.kind === "hardware") know = ["Hardware on this quote."];
+    else if (it.kind === "frame") know = ["Frame on this quote."];
+    else know = ["Door type chosen on the shop list. Material and size were not chosen here."];
+    return {
+      door: i + 1, location: "", quantity: 1,
+      type: it.kind === "flagpole" ? "Flagpole" : it.label,
+      type_id: it.kind === "flagpole" ? "flagpole" : (it.type || it.kind),
+      material: "", material_id: "", size: "", size_id: "", custom_size: false,
+      width_in: null, height_in: null, width: "", height: "",
+      hardware: it.kind === "hardware" ? [it.label] : [],
+      good_to_know: know
+    };
+  }
+  function notesFor(extra) {
+    var lines = ["Quote list from the shop."];
+    for (var i = 0; i < items.length; i++) lines.push((i + 1) + ". " + plainLine(items[i]));
+    lines.push("");
+    lines.push("Buying and deposits are not available online. This is a quote request. The office follows up.");
+    if (extra) { lines.push(""); lines.push(extra); }
+    return lines.join("\n").slice(0, 4000);
+  }
+  var sending = false, reqRef = "", reqTries = 0;
+  function sendErr(msg) {
+    var box = $("#ql-send-err");
+    if (!msg) { box.classList.remove("is-on"); box.innerHTML = ""; return; }
+    box.innerHTML = msg; box.classList.add("is-on");
+  }
+  function rowFor(c) {
+    var page = location.href.split("#")[0];
+    var doors = [];
+    for (var i = 0; i < items.length; i++) doors.push(doorRow(items[i], i));
+    return {
+      reference: reqRef, name: c.n, company: c.co || null, phone: c.p || null, email: c.e || null,
+      project_location: c.a || null, timeline: c.tl || null, notes: notesFor(c.x),
+      doors: doors, door_count: doors.length, total_quantity: doors.length,
+      build_link: page, office_link: page,
+      user_agent: String(navigator.userAgent || "").slice(0, 400)
+    };
+  }
+  function sent(c) {
+    items = []; save(); reqRef = ""; reqTries = 0;
+    $("#qlist-ref").textContent = reqRefHeld;
+    $("#qlist-form").hidden = true;
+    $("#qlist-items").innerHTML = "";
+    $("#qlist-empty").hidden = true;
+    $("#qlist-count").textContent = "Sent.";
+    var stick = $("#qlist-bar"); if (stick) stick.hidden = true;
+    var call = $("#qlist-call"); if (call) call.textContent = "Your quote";
+    var done = $("#qlist-done"); done.hidden = false;
+    if (c.n) done.querySelector("p").innerHTML = "Reference <strong>" + esc(reqRefHeld) + "</strong>. This is one quote request, not a purchase. Buying and deposits are not available online. Our office follows up.";
+    done.focus();
+  }
+  var reqRefHeld = "";
+  function sendRequest(c) {
+    if (sending) return;
+    var btn = $("#ql-submit");
+    sending = true; sendErr("");
+    btn.disabled = true; btn.setAttribute("aria-busy", "true"); btn.textContent = "Sending\u2026";
+    var retry = reqTries > 0; reqTries++;
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
+    var done = function () { clearTimeout(timer); sending = false; btn.disabled = false; btn.removeAttribute("aria-busy"); btn.textContent = "Send my quote request"; };
+    fetch(QUOTE_API.url, {
+      method: "POST", mode: "cors", credentials: "omit", signal: ctl ? ctl.signal : undefined,
+      headers: { "Content-Type": "application/json", apikey: QUOTE_API.key, Prefer: "return=minimal" },
+      body: JSON.stringify(rowFor(c))
+    }).then(function (r) {
+      if (r.ok || (r.status === 409 && retry)) { reqRefHeld = reqRef; done(); sent(c); return; }
+      if (r.status === 409) { done(); reqRef = S.newRef(); reqTries = 0; sendRequest(c); return; }
+      throw new Error("HTTP " + r.status);
+    }).catch(function () {
+      done();
+      sendErr("<strong>We couldn't send your quote just now.</strong> Please check your connection and press <strong>Send my quote request</strong> again. Your list is still here. Or call us at <a href=\"tel:+12707803235\">" + PHONE + "</a>.");
+    });
+  }
+  var form = $("#qlist-form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      showErr("#ql-list-err", items.length === 0);
+      if (!items.length) { var listTop = $("#quote-list"); if (listTop) listTop.scrollIntoView({ block: "nearest" }); return; }
+      var okName = checkName(), okReach = checkReach();
+      if (!okName) { $("#ql-name").focus(); return; }
+      if (!okReach) { var p = $("#ql-phone"); (p.getAttribute("aria-invalid") === "true" ? p : $("#ql-email")).focus(); return; }
+      var c = S.unpackContact({ n: $("#ql-name").value, co: $("#ql-company").value, p: $("#ql-phone").value, e: $("#ql-email").value, a: $("#ql-addr").value, tl: $("#ql-when").value, x: $("#ql-notes").value });
+      if (!reqRef) reqRef = S.newRef();
+      sendRequest(c);
+    });
+    $("#ql-name").addEventListener("input", function () { if (this.getAttribute("aria-invalid") === "true") checkName(); });
+    ["#ql-phone", "#ql-email"].forEach(function (sel) {
+      $(sel).addEventListener("input", function () { if ($("#ql-reach").classList.contains("is-invalid")) checkReach(); });
+    });
+  }
+  load();
+  render();
 })();

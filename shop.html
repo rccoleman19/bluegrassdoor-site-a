@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=cc13">
-  <link rel="stylesheet" href="shop.css?v=sh1">
+  <link rel="stylesheet" href="shop.css?v=sh2">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -100,6 +100,13 @@
     </div>
   </header>
 
+  <div class="qlist-bar" id="qlist-bar" hidden>
+    <div class="wrap qlist-bar__in">
+      <a href="#quote-list" id="qlist-bar-link">Your quote</a>
+      <p id="qlist-bar-names"></p>
+    </div>
+  </div>
+
   <main id="main">
     <section class="section shop" aria-labelledby="shop-title">
       <div class="wrap">
@@ -108,7 +115,75 @@
         <p class="section__lead">Look through the doors, frames, hardware, and flagpoles we offer, then start a quote.</p>
         <p class="site-summary">Bluegrass Commercial Door &amp; More is a family-owned business at 930 Gordon Avenue, Bowling Green, KY 42101. We do doors, frames, hardware, partitions, and flagpoles. The shop is in Bowling Green, and we will look at jobs farther out. Call <a href="tel:+12707803235">270-780-3235</a> or email <a href="mailto:sonya@bluegrassdoor.com">sonya@bluegrassdoor.com</a>.</p>
         <p class="shop-note">Buying and deposits are not available online. There is no checkout and no price on this page. The completed step is a quote request, and the office follows up.</p>
-        <p>A door, frame, or hardware item opens the door builder. A flagpole opens the flagpole quote. The same requests are on <a href="start.html">Start a quote</a>. Partitions are not listed here. Call or email about partitions.</p>
+        <div class="qlist" id="quote-list">
+          <div class="qlist__head">
+            <h2 id="qlist-title">Your quote</h2>
+            <p class="qlist__count" id="qlist-count" aria-live="polite">Nothing added yet.</p>
+          </div>
+          <div class="qlist__body">
+            <div>
+              <p id="qlist-empty">Add doors, frames, hardware, or a flagpole from this page. They stay in this list until you send them together.</p>
+              <ol class="qlist__items" id="qlist-items"></ol>
+            </div>
+            <form class="qform" id="qlist-form" action="#quote-list" method="post" novalidate>
+              <p class="quote__sub">Send this list as one quote request. We need your name and a phone number or an email.</p>
+              <div class="field-row">
+                <div class="field">
+                  <label for="ql-name">Your name <span class="req" aria-hidden="true">*</span></label>
+                  <input id="ql-name" name="name" type="text" autocomplete="name" required aria-required="true" maxlength="80">
+                  <p class="field__err" id="ql-name-err">Please enter your name.</p>
+                </div>
+                <div class="field">
+                  <label for="ql-company">Company <span class="opt-l">(optional)</span></label>
+                  <input id="ql-company" name="company" type="text" autocomplete="organization" maxlength="80">
+                </div>
+              </div>
+              <fieldset class="field-set" id="ql-reach">
+                <legend>How should we reach you? <span class="req" aria-hidden="true">*</span></legend>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="ql-phone">Phone</label>
+                    <input id="ql-phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+                  </div>
+                  <div class="field">
+                    <label for="ql-email">Email</label>
+                    <input id="ql-email" name="email" type="email" autocomplete="email" maxlength="120">
+                  </div>
+                </div>
+                <p class="field__err" id="ql-reach-err">Please give us a phone number or an email address.</p>
+              </fieldset>
+              <div class="field-row">
+                <div class="field">
+                  <label for="ql-addr">Project address or city <span class="opt-l">(optional)</span></label>
+                  <input id="ql-addr" name="address" type="text" autocomplete="street-address" maxlength="160">
+                </div>
+                <div class="field">
+                  <label for="ql-when">Timeline <span class="opt-l">(optional)</span></label>
+                  <select id="ql-when" name="timeline">
+                    <option value="">Choose one</option>
+                    <option>As soon as possible</option>
+                    <option>Within 1 month</option>
+                    <option>1–3 months</option>
+                    <option>Planning / bidding</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="ql-notes">Anything else <span class="opt-l">(optional)</span></label>
+                <textarea id="ql-notes" name="notes" rows="3" maxlength="600"></textarea>
+              </div>
+              <p class="field__err" id="ql-list-err">Add at least one item before you send.</p>
+              <button class="btn btn--accent btn--lg btn--block" type="submit" id="ql-submit">Send my quote request</button>
+              <p class="quote__fine">This is one quote request. Buying and deposits are not available online. The office follows up.</p>
+              <p class="field__err" id="ql-send-err"></p>
+            </form>
+          </div>
+          <div id="qlist-done" hidden tabindex="-1">
+            <h2>Your quote request is in.</h2>
+            <p>Reference <strong id="qlist-ref"></strong>. This is one quote request, not a purchase. Buying and deposits are not available online. Our office follows up.</p>
+          </div>
+        </div>
+        <p>Add a door, a frame, hardware, or a flagpole to your quote. You can add more than one, then send them together. A card that already chooses a door type keeps that type. You can still open that type in the <a href="index.html#builder">door builder</a>. A flagpole on this list does not ask for a height or a price. The same single requests are on <a href="start.html">Start a quote</a>. Partitions are not listed here. Call or email about partitions.</p>
         <div class="shop-filters" role="toolbar" aria-label="Shop categories">
           <button type="button" data-shop="all" aria-pressed="true">All</button>
           <button type="button" data-shop="doors" aria-pressed="false">Doors</button>
@@ -126,21 +201,24 @@
               <div class="svc__body">
                 <h3>Storefront / Entrance</h3>
                 <p>Complete commercial entrance solutions, including storefront doors and glass, for new construction and remodels.</p>
-                <a class="svc__link" href="index.html?door=storefront#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="storefront" data-label="Storefront / Entrance">Add to quote</button>
+                <a class="svc__link" href="index.html?door=storefront#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc svc--navy">
               <div class="svc__body">
                 <h3>Hollow Metal / Steel</h3>
                 <p>Durable hollow metal doors for back doors, stairwells, and utility rooms.</p>
-                <a class="svc__link" href="index.html?door=hollow#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="hollow" data-label="Hollow Metal / Steel">Add to quote</button>
+                <a class="svc__link" href="index.html?door=hollow#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc svc--navy">
               <div class="svc__body">
                 <h3>Fire-Rated Door</h3>
                 <p>Code-compliant fire-rated door and frame.</p>
-                <a class="svc__link" href="index.html?door=fire#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="fire" data-label="Fire-Rated Door">Add to quote</button>
+                <a class="svc__link" href="index.html?door=fire#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc">
@@ -148,14 +226,16 @@
               <div class="svc__body">
                 <h3>Security / Safe Room</h3>
                 <p>Durable security doors and safe room doors for businesses and homes.</p>
-                <a class="svc__link" href="index.html?door=security#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="security" data-label="Security / Safe Room">Add to quote</button>
+                <a class="svc__link" href="index.html?door=security#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc svc--navy">
               <div class="svc__body">
                 <h3>Interior / Exterior Swing</h3>
                 <p>Swing doors for residential and commercial projects, including replacement doors and custom door solutions for new construction and remodeling.</p>
-                <a class="svc__link" href="index.html?door=swing#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="swing" data-label="Interior / Exterior Swing">Add to quote</button>
+                <a class="svc__link" href="index.html?door=swing#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc">
@@ -163,7 +243,8 @@
               <div class="svc__body">
                 <h3>Sliding Barn Door</h3>
                 <p>Interior sliding barn door on track hardware. Wood panel or frosted glass.</p>
-                <a class="svc__link" href="index.html?door=barn#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="door" data-type="barn" data-label="Sliding Barn Door">Add to quote</button>
+                <a class="svc__link" href="index.html?door=barn#builder">Or open this door type <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
           </div>
@@ -178,8 +259,10 @@
               <div class="svc__body">
                 <h3>Hollow metal frames</h3>
                 <p>Durable hollow metal door frames. A fire-rated frame is part of a fire-rated door quote.</p>
-                <a class="svc__link" href="index.html?door=hollow#builder">Request a hollow metal door quote <span aria-hidden="true">&rarr;</span></a>
-                <a class="svc__link" href="index.html?door=fire#builder">Request a fire-rated door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="frame" data-type="hollow" data-label="Hollow metal frames">Add hollow metal frames</button>
+                <a class="svc__link" href="index.html?door=hollow#builder">Or open a hollow metal door <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="frame" data-type="fire" data-label="Fire-rated door and frame">Add a fire-rated door and frame</button>
+                <a class="svc__link" href="index.html?door=fire#builder">Or open a fire-rated door <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
             <article class="svc">
@@ -187,7 +270,8 @@
               <div class="svc__body">
                 <h3>Storefront framing</h3>
                 <p>Aluminum and glass storefront framing, quoted with the storefront door.</p>
-                <a class="svc__link" href="index.html?door=storefront#builder">Request a storefront door quote <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="frame" data-type="storefront" data-label="Storefront framing">Add storefront framing</button>
+                <a class="svc__link" href="index.html?door=storefront#builder">Or open a storefront door <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
           </div>
@@ -200,57 +284,68 @@
             <article>
               <h3>Lever lockset</h3>
               <p>Keyed or passage lever.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Lever lockset">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Deadbolt</h3>
               <p>Added security.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Deadbolt">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Panic / exit device</h3>
               <p>Push bar for egress.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Panic / exit device">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Door closer</h3>
               <p>Controlled self-closing.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Door closer">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Keypad / access control</h3>
               <p>Code or card entry.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Keypad / access control">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Hinges / pivots</h3>
               <p>Heavy-duty or continuous.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Hinges / pivots">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Kick plate &amp; accessories</h3>
               <p>Protection plates, stops, seals.</p>
-              <a class="svc__link" href="index.html#builder">Request a door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-label="Kick plate &amp; accessories">Add to quote</button>
+              <a class="svc__link" href="index.html#builder">Or open the door builder <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Barn track hardware</h3>
               <p>Black flat track and rollers.</p>
-              <a class="svc__link" href="index.html?door=barn#builder">Request a barn door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-type="barn" data-label="Barn track hardware">Add to quote</button>
+              <a class="svc__link" href="index.html?door=barn#builder">Or open a sliding barn door <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Door pull / handle</h3>
               <p>Pulls and flush pulls.</p>
-              <a class="svc__link" href="index.html?door=barn#builder">Request a barn door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-type="barn" data-label="Door pull / handle">Add to quote</button>
+              <a class="svc__link" href="index.html?door=barn#builder">Or open a sliding barn door <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Privacy latch</h3>
               <p>Simple lock for bed and bath.</p>
-              <a class="svc__link" href="index.html?door=barn#builder">Request a barn door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-type="barn" data-label="Privacy latch">Add to quote</button>
+              <a class="svc__link" href="index.html?door=barn#builder">Or open a sliding barn door <span aria-hidden="true">&rarr;</span></a>
             </article>
             <article>
               <h3>Soft-close</h3>
               <p>Gentle stop at each end.</p>
-              <a class="svc__link" href="index.html?door=barn#builder">Request a barn door quote <span aria-hidden="true">&rarr;</span></a>
+              <button type="button" class="btn btn--accent shop-add" data-add="hardware" data-type="barn" data-label="Soft-close">Add to quote</button>
+              <a class="svc__link" href="index.html?door=barn#builder">Or open a sliding barn door <span aria-hidden="true">&rarr;</span></a>
             </article>
           </div>
         </div>
@@ -264,8 +359,8 @@
               <div class="svc__body">
                 <h3>Flagpoles</h3>
                 <p>Professionally installed flagpoles for American and state flags, built to stand tall through the toughest weather conditions.</p>
-                <a class="svc__link" href="flagpoles.html#quote">Request a flagpole quote <span aria-hidden="true">&rarr;</span></a>
-                <a class="svc__link" href="start.html#flagpole-form">Or use the plain flagpole form <span aria-hidden="true">&rarr;</span></a>
+                <button type="button" class="btn btn--accent shop-add" data-add="flagpole" data-label="Flagpole">Add a flagpole</button>
+                <a class="svc__link" href="flagpoles.html#quote">Or open the flagpole quote <span aria-hidden="true">&rarr;</span></a>
               </div>
             </article>
           </div>
@@ -323,9 +418,10 @@
       <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
       Call 270-780-3235
     </a>
-    <a class="callbar__quote" href="index.html#builder">Door quote</a>
+    <a class="callbar__quote" id="qlist-call" href="#quote-list">Your quote</a>
   </div>
 
-  <script src="shop.js?v=sh1"></script>
+  <script src="door-spec.js?v=spec2"></script>
+  <script src="shop.js?v=sh2"></script>
 </body>
 </html>
