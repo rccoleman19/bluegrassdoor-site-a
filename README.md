@@ -26,7 +26,7 @@ The help chat sends typed questions to the Supabase Edge Function `chat` (same p
 
 The table matches the quote inbox rule: the public site can add a row and cannot read, change, or delete rows. Row Level Security allows an insert for the `anon` role only. There is no select policy for that role. The row has no name, phone, email, address, or notes column. A database trigger drops those keys if a request still sends them. Nothing on this table sends email.
 
-The write uses the same public publishable key as the quote form. To point the script somewhere else, set `window.BGD_TRACK` before `track.js` runs (`url`, `key`, and an optional `posthogKey`).
+The write uses the same public publishable key as the quote form. The same events are also sent to PostHog on the US cloud, using the project key in `track.js`. To point the script somewhere else, set `window.BGD_TRACK` before `track.js` runs (`url`, `key`, and an optional `posthogKey`).
 
 Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `quote_add`, `gallery_open`, `engage`, `page_leave`.
 

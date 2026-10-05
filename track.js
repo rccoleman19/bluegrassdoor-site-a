@@ -16,8 +16,8 @@
      posthogHost: "https://us.i.posthog.com"
    };
 
-   posthogKey is optional. It is a PostHog project key (it starts with phc_).
-   Leave it empty to skip PostHog. No extra library is loaded.
+   posthogKey is the PostHog project key for this site (it starts with phc_).
+   The same events are also sent to https://us.i.posthog.com. No extra library is loaded.
 
    How to read the rows: open the Supabase SQL editor for project bluegrassdoor
    and run visit-queries.sql. visit-review.html is not in the site menu.
@@ -36,7 +36,7 @@
   var defaults = {
     url: "https://esrwugfaqlwttxmfkpkx.supabase.co/rest/v1/site_events",
     key: "sb_publishable_aOUQv3tbsDOP4eTDjbyA6w_RKZBxx8K",
-    posthogKey: "",
+    posthogKey: "phc_zLFL5DuFYuYtBif2qQFKDAtkztkTSufAgfzVGdEbtqz9",
     posthogHost: "https://us.i.posthog.com"
   };
   var over = window.BGD_TRACK || {};
