@@ -468,8 +468,9 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
   .nav__list a::after { content: none; }
   .nav__list a:hover { background: var(--soft); color: var(--blue); }
   .nav__mobile-extra { display: none; }
-  .header__phone { display: inline-flex; }
-  .header__cta { display: inline-flex; }
+  .header__phone { display: inline-flex; flex: none; }
+  .header__phone span { white-space: nowrap; }
+  .header__cta { display: inline-flex; flex: none; white-space: nowrap; }
   .section { padding: 104px 0; }
   .services { grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .about { grid-template-columns: 1.05fr 1fr; gap: 64px; }
