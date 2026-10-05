@@ -22,22 +22,29 @@ The help chat sends typed questions to the Supabase Edge Function `chat` (same p
 
 ## Visitor tracking
 
-`track.js` is loaded on the homepage, shop, flagpoles, start, and quote-link pages. It records events in `window.dataLayer` and `window.BGD_EVENTS`. Nothing leaves the browser until you set a destination in `track.js`, or set `window.BGD_TRACK` before that file runs.
+`track.js` is loaded on the homepage, shop, flagpoles, start, and quote-link pages. Each event is kept in `window.dataLayer` and `window.BGD_EVENTS` with `step` and `t`, so one browser tab has an ordered path. The same row is added to the Supabase table `site_events` on project `bluegrassdoor`.
 
-```js
-window.BGD_TRACK = {
-  url: "",
-  key: "",
-  posthogKey: "",
-  posthogHost: "https://us.i.posthog.com"
-};
-```
+The table matches the quote inbox rule: the public site can add a row and cannot read, change, or delete rows. Row Level Security allows an insert for the `anon` role only. There is no select policy for that role. The row has no name, phone, email, address, or notes column. A database trigger drops those keys if a request still sends them. Nothing on this table sends email.
 
-- `url` is an https endpoint that accepts a JSON POST. `key`, when set, is sent as the `apikey` header. Leave both empty to keep events on the browser only.
-- `posthogKey` is a PostHog project key (it starts with `phc_`). The script posts to `posthogHost` (`https://us.i.posthog.com` unless you change it). No extra library is loaded.
+The write uses the same public publishable key as the quote form. To point the script somewhere else, set `window.BGD_TRACK` before `track.js` runs (`url`, `key`, and an optional `posthogKey`).
 
 Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `quote_add`, `gallery_open`, `engage`, `page_leave`.
 
 A visitor's name, phone, email, address, company, and notes are never copied into an event. A phone or email click is counted as `tel_click` or `mailto_click` without the number or address. The page path is the pathname only, so a saved quote link's query string and hash stay out of the event.
+
+### How to read the visits
+
+Open the Supabase SQL editor for project `bluegrassdoor` (the same project that holds `quote_requests`) and run `visit-queries.sql`. That file answers, for the last 30 days:
+
+- top paths through the site
+- pages with no page view
+- clicks by control
+- sections with no entry
+- median time on a page, and the engage marks
+- pages where a visit ends
+- the quote steps from a page view to a saved request
+- how often Dory is opened and then sent a message
+
+`visit-review.html` is a short note with the same directions. It is not in the menu, and it does not show visitor rows. The SQL editor is where the numbers come from. The table starts empty until someone visits the site.
 
 Run it locally with `python3 -m http.server` in this folder, then open http://localhost:8000.
