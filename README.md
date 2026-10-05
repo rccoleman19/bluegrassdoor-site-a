@@ -20,4 +20,24 @@ The help chat sends typed questions to the Supabase Edge Function `chat` (same p
 
 (The database setup, the email function and the chat function are kept outside this repository.)
 
+## Visitor tracking
+
+`track.js` is loaded on the homepage, shop, flagpoles, start, and quote-link pages. It records events in `window.dataLayer` and `window.BGD_EVENTS`. Nothing leaves the browser until you set a destination in `track.js`, or set `window.BGD_TRACK` before that file runs.
+
+```js
+window.BGD_TRACK = {
+  url: "",
+  key: "",
+  posthogKey: "",
+  posthogHost: "https://us.i.posthog.com"
+};
+```
+
+- `url` is an https endpoint that accepts a JSON POST. `key`, when set, is sent as the `apikey` header. Leave both empty to keep events on the browser only.
+- `posthogKey` is a PostHog project key (it starts with `phc_`). The script posts to `posthogHost` (`https://us.i.posthog.com` unless you change it). No extra library is loaded.
+
+Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `quote_add`, `gallery_open`, `engage`, `page_leave`.
+
+A visitor's name, phone, email, address, company, and notes are never copied into an event. A phone or email click is counted as `tel_click` or `mailto_click` without the number or address. The page path is the pathname only, so a saved quote link's query string and hash stay out of the event.
+
 Run it locally with `python3 -m http.server` in this folder, then open http://localhost:8000.
