@@ -1,16 +1,26 @@
 /* Visitor tracking for this static site.
-   Events are recorded in window.dataLayer and window.BGD_EVENTS in the browser.
-   Nothing is sent off the browser until a destination is set.
+   Events are recorded in window.dataLayer and window.BGD_EVENTS in the browser,
+   in order. Each row has step (1, 2, 3, ... for this tab) and t (client time).
+   The same row is posted to the site_events table. The public site can add a
+   row. It cannot read the table. There is no name, phone, email, address, or
+   notes column.
 
-   First-party beacon: set url to an https endpoint that accepts a JSON POST.
-   If that endpoint expects a key, set key (sent as the apikey header).
-   Leave url and key empty to keep events on this browser only.
+   The write target is the bluegrassdoor Supabase table site_events, using the
+   same public publishable key the quote form already uses. To point somewhere
+   else, set window.BGD_TRACK before this file runs:
 
-   PostHog: set posthogKey to the project key (it starts with phc_).
-   posthogHost defaults to https://us.i.posthog.com. No extra library is loaded.
+   window.BGD_TRACK = {
+     url: "https://esrwugfaqlwttxmfkpkx.supabase.co/rest/v1/site_events",
+     key: "",
+     posthogKey: "",
+     posthogHost: "https://us.i.posthog.com"
+   };
 
-   You can edit the values below, or set window.BGD_TRACK before this file runs:
-   window.BGD_TRACK = { url: "", key: "", posthogKey: "", posthogHost: "https://us.i.posthog.com" };
+   posthogKey is optional. It is a PostHog project key (it starts with phc_).
+   Leave it empty to skip PostHog. No extra library is loaded.
+
+   How to read the rows: open the Supabase SQL editor for project bluegrassdoor
+   and run visit-queries.sql. visit-review.html is not in the site menu.
 
    Events:
    page_view, click, tel_click, mailto_click, scroll_depth, section_enter,
@@ -24,8 +34,8 @@
 */
 (function () {
   var defaults = {
-    url: "",
-    key: "",
+    url: "https://esrwugfaqlwttxmfkpkx.supabase.co/rest/v1/site_events",
+    key: "sb_publishable_aOUQv3tbsDOP4eTDjbyA6w_RKZBxx8K",
     posthogKey: "",
     posthogHost: "https://us.i.posthog.com"
   };
@@ -111,16 +121,42 @@
     return location.pathname || "/";
   }
 
+  function sidOk(v) {
+    var i, c;
+    if (!v || v.length < 8 || v.length > 40) return false;
+    for (i = 0; i < v.length; i++) {
+      c = v.charCodeAt(i);
+      if (!((c >= 48 && c <= 57) || (c >= 97 && c <= 122))) return false;
+    }
+    return true;
+  }
+
   function sid() {
-    var k = "bgd-sid", v;
+    var k = "bgd-sid", v = "";
     try {
-      v = sessionStorage.getItem(k);
-      if (v) return v;
-      v = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      v = sessionStorage.getItem(k) || "";
+      if (sidOk(v)) return v;
+      v = "";
+      while (v.length < 16) v += Math.random().toString(36).slice(2);
+      v = v.slice(0, 24);
       sessionStorage.setItem(k, v);
       return v;
     } catch (err) {
-      return "tab";
+      while (v.length < 16) v += Math.random().toString(36).slice(2);
+      return v.slice(0, 24);
+    }
+  }
+
+  function nextStep() {
+    var n = 1;
+    try {
+      n = Number(sessionStorage.getItem("bgd-step") || "0") + 1;
+      if (!isFinite(n) || n < 1) n = 1;
+      if (n > 500) return 0;
+      sessionStorage.setItem("bgd-step", String(n));
+      return n;
+    } catch (err) {
+      return 0;
     }
   }
 
@@ -192,18 +228,19 @@
     return out;
   }
 
-  function ship(name, props) {
+  function ship(name, props, step, clientMs) {
     var body, headers, host;
-    if (!netFetch) return;
+    if (!netFetch || !step) return;
     body = JSON.stringify({
+      sid: sid(),
+      step: step,
       event: name,
       path: pagePath(),
-      sid: sid(),
-      props: props
+      client_ms: clientMs,
+      props: props || {}
     });
-    if (cfg.url) {
-      headers = { "Content-Type": "application/json" };
-      if (cfg.key) headers.apikey = cfg.key;
+    if (cfg.url && cfg.key) {
+      headers = { "Content-Type": "application/json", apikey: cfg.key, Prefer: "return=minimal" };
       netFetch(cfg.url, {
         method: "POST",
         mode: "cors",
@@ -238,7 +275,9 @@
 
   function send(name, props) {
     var clean = cleanProps(props);
-    var row = { event: name, path: pagePath() };
+    var n = nextStep();
+    var when = Date.now();
+    var row = { event: name, path: pagePath(), step: n, t: when };
     var k;
     for (k in clean) {
       if (own(clean, k)) row[k] = clean[k];
@@ -246,7 +285,7 @@
     window.dataLayer.push(row);
     window.BGD_EVENTS.push(row);
     if (window.BGD_EVENTS.length > 200) window.BGD_EVENTS.shift();
-    ship(name, clean);
+    ship(name, clean, n, when);
   }
 
   function element(node) {
