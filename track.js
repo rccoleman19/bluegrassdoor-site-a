@@ -19,6 +19,10 @@
    posthogKey is the PostHog project key for this site (it starts with phc_).
    The same events are also sent to https://us.i.posthog.com. No extra library is loaded.
 
+   If sessionStorage is blocked, the session id and the step counter stay in memory
+   for this page only. They are not written to a cookie or to localStorage.
+   The step counter still stops at 500.
+
    How to read the rows: open the Supabase SQL editor for project bluegrassdoor
    and run visit-queries.sql. visit-review.html is not in the site menu.
 
@@ -70,8 +74,12 @@
   var pendingForm = "";
   var left = false;
   var scrollQueued = false;
-  var visibleSince = Date.now();
+  var running = document.visibilityState !== "hidden";
+  var visibleSince = running ? Date.now() : null;
   var visibleMs = 0;
+  var memSid = "";
+  var memStep = 0;
+  var quoteBodies = [];
   var netFetch = window.fetch ? window.fetch.bind(window) : null;
 
   window.dataLayer = window.dataLayer || [];
@@ -142,8 +150,11 @@
       sessionStorage.setItem(k, v);
       return v;
     } catch (err) {
+      if (sidOk(memSid)) return memSid;
+      v = "";
       while (v.length < 16) v += Math.random().toString(36).slice(2);
-      return v.slice(0, 24);
+      memSid = v.slice(0, 24);
+      return memSid;
     }
   }
 
@@ -156,7 +167,9 @@
       sessionStorage.setItem("bgd-step", String(n));
       return n;
     } catch (err) {
-      return 0;
+      if (memStep >= 500) return 0;
+      memStep += 1;
+      return memStep;
     }
   }
 
@@ -446,14 +459,15 @@
     for (i = 0; i < nodes.length; i++) io.observe(nodes[i]);
   }
 
-  function flushVisible() {
-    var now = Date.now();
-    var sec, i, mark;
-    if (document.visibilityState !== "hidden") {
-      visibleMs += now - visibleSince;
-      visibleSince = now;
-    }
-    sec = Math.floor(visibleMs / 1000);
+  function accumulate(now) {
+    if (!running || visibleSince == null) return;
+    visibleMs += now - visibleSince;
+    visibleSince = now;
+  }
+
+  function markEngage() {
+    var sec = Math.floor(visibleMs / 1000);
+    var i, mark;
     for (i = 0; i < ENGAGE_MARKS.length; i++) {
       mark = ENGAGE_MARKS[i];
       if (sec >= mark && !seenEngage[mark]) {
@@ -464,21 +478,45 @@
     return sec;
   }
 
+  function flushVisible() {
+    accumulate(Date.now());
+    return markEngage();
+  }
+
   function onHide() {
     var sec;
-    if (document.visibilityState === "hidden") {
-      visibleMs += Date.now() - visibleSince;
-      visibleSince = Date.now();
+    if (running) {
+      accumulate(Date.now());
+      running = false;
+      visibleSince = null;
     }
-    sec = flushVisible();
+    sec = markEngage();
     if (left) return;
     left = true;
     send("page_leave", { seconds: sec, path: pagePath() });
   }
 
-  function onShow() {
-    if (document.visibilityState === "visible") visibleSince = Date.now();
-    else onHide();
+  function resume() {
+    if (document.visibilityState === "hidden") {
+      onHide();
+      return;
+    }
+    if (!running) {
+      running = true;
+      visibleSince = Date.now();
+    }
+    left = false;
+  }
+
+  function sameQuote(body) {
+    var i, prior = false;
+    if (typeof body !== "string" || !body) return false;
+    for (i = 0; i < quoteBodies.length; i++) {
+      if (quoteBodies[i] === body) prior = true;
+    }
+    quoteBodies.push(body);
+    if (quoteBodies.length > 40) quoteBodies.shift();
+    return prior;
   }
 
   if (netFetch) {
@@ -486,17 +524,24 @@
       var url = typeof input === "string" ? input : (input && input.url ? input.url : "");
       var isQuote = url.indexOf("quote_requests") !== -1;
       var formId = pendingForm || "";
+      var prior = isQuote ? sameQuote(init && init.body) : false;
       var p = netFetch(input, init);
       if (isQuote && p && p.then) {
         send("quote_submit", { form: formId, path: pagePath() });
         p.then(function (res) {
           var status = res && typeof res.status === "number" ? res.status : 0;
-          var ok = !!(res && (res.ok || status === 409));
-          send(ok ? "quote_submit_ok" : "quote_submit_fail", {
-            form: formId,
-            status: status,
-            path: pagePath()
-          });
+          /* A first 409 means that reference is taken. The form chooses another and tries again.
+             A 409 for the same payload means the first try was saved and its answer was lost. */
+          if (res && res.ok) {
+            send("quote_submit_ok", { form: formId, status: status, path: pagePath() });
+            return;
+          }
+          if (status === 409 && prior) {
+            send("quote_submit_ok", { form: formId, status: status, path: pagePath() });
+            return;
+          }
+          if (status === 409) return;
+          send("quote_submit_fail", { form: formId, status: status, path: pagePath() });
         }, function () {
           send("quote_submit_fail", { form: formId, status: 0, path: pagePath() });
         });
@@ -510,8 +555,12 @@
   document.addEventListener("focusin", onFocus, true);
   document.addEventListener("submit", onSubmit, true);
   window.addEventListener("scroll", onScroll, { passive: true });
-  document.addEventListener("visibilitychange", onShow);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") onHide();
+    else resume();
+  });
   window.addEventListener("pagehide", onHide);
+  window.addEventListener("pageshow", resume);
   send("page_view", { path: pagePath() });
   watchSections();
   measureScroll();
