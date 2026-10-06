@@ -57,7 +57,7 @@
       }).then(function (r) {
         clearTimeout(timer);
         if (r.ok || (r.status === 409 && retry)) { onOk(); return; }
-        if (r.status === 409) { row.reference = S.newRef(); once(); return; }
+        if (r.status === 409) { row.reference = S.newRef(); tries = 0; once(); return; }
         throw new Error("HTTP " + r.status);
       }).catch(function () {
         clearTimeout(timer);

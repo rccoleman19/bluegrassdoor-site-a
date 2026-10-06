@@ -47,7 +47,22 @@
       apply(kind);
       if (history.replaceState) history.replaceState(null, "", kind === "all" ? location.pathname + location.search : "#" + kind);
     });
-    window.addEventListener("hashchange", function () { apply(kindFromHash()); });
+    function showKind(kind) {
+      var el, head;
+      if (!kinds[kind]) return;
+      el = document.getElementById(kind);
+      if (!el || !el.scrollIntoView) return;
+      head = el.querySelector ? el.querySelector("h2") : null;
+      if (!head) head = el;
+      if (head.setAttribute && head.getAttribute && head.getAttribute("tabindex") == null) head.setAttribute("tabindex", "-1");
+      el.scrollIntoView({ block: "start" });
+      if (head.focus) head.focus();
+    }
+    window.addEventListener("hashchange", function () {
+      var kind = kindFromHash();
+      apply(kind);
+      showKind(kind);
+    });
   }
 
   var items = [];
@@ -108,7 +123,7 @@
     list.innerHTML = html;
   }
   function addItem(kind, type, label) {
-    if (!kind || !label || items.length >= 20) return;
+    if (sending || !kind || !label || items.length >= 20) return;
     var done = $("#qlist-done"); if (done) done.hidden = true;
     items.push({ kind: kind, type: type || "", label: label });
     save();
@@ -117,11 +132,12 @@
   }
   document.addEventListener("click", function (e) {
     var add = e.target.closest && e.target.closest("[data-add]");
+    var rm = e.target.closest && e.target.closest("[data-remove]");
+    if (sending && (add || rm)) return;
     if (add) {
       addItem(add.getAttribute("data-add"), add.getAttribute("data-type") || "", add.getAttribute("data-label") || "");
       return;
     }
-    var rm = e.target.closest && e.target.closest("[data-remove]");
     if (!rm) return;
     var idx = parseInt(rm.getAttribute("data-remove"), 10);
     if (!isFinite(idx) || idx < 0 || idx >= items.length) return;
@@ -190,62 +206,114 @@
       good_to_know: know
     };
   }
-  function notesFor(extra) {
+  function notesFor(extra, list) {
     var lines = ["Quote list from the shop."];
-    for (var i = 0; i < items.length; i++) lines.push((i + 1) + ". " + plainLine(items[i]));
+    for (var i = 0; i < list.length; i++) lines.push((i + 1) + ". " + plainLine(list[i]));
     lines.push("");
     lines.push("Buying and deposits are not available online. This is a quote request. The office follows up.");
     if (extra) { lines.push(""); lines.push(extra); }
     return lines.join("\n").slice(0, 4000);
   }
-  var sending = false, reqRef = "", reqTries = 0;
+  var sending = false, reqRef = "", reqTries = 0, reqSig = "";
   function sendErr(msg) {
     var box = $("#ql-send-err");
     if (!msg) { box.classList.remove("is-on"); box.innerHTML = ""; return; }
     box.innerHTML = msg; box.classList.add("is-on");
   }
-  function rowFor(c) {
+  function rowFor(c, list) {
     var page = location.href.split("#")[0];
     var doors = [];
-    for (var i = 0; i < items.length; i++) doors.push(doorRow(items[i], i));
+    for (var i = 0; i < list.length; i++) doors.push(doorRow(list[i], i));
     return {
       reference: reqRef, name: c.n, company: c.co || null, phone: c.p || null, email: c.e || null,
-      project_location: c.a || null, timeline: c.tl || null, notes: notesFor(c.x),
+      project_location: c.a || null, timeline: c.tl || null, notes: notesFor(c.x, list),
       doors: doors, door_count: doors.length, total_quantity: doors.length,
       build_link: page, office_link: page,
       user_agent: String(navigator.userAgent || "").slice(0, 400)
     };
   }
-  function sent(c) {
-    items = []; save(); reqRef = ""; reqTries = 0;
-    $("#qlist-ref").textContent = reqRefHeld;
-    $("#qlist-form").hidden = true;
-    $("#qlist-items").innerHTML = "";
-    $("#qlist-empty").hidden = true;
-    $("#qlist-count").textContent = "Sent.";
-    var stick = $("#qlist-bar"); if (stick) stick.hidden = true;
-    var call = $("#qlist-call"); if (call) call.textContent = "Your quote";
-    var done = $("#qlist-done"); done.hidden = false;
-    if (c.n) done.querySelector("p").innerHTML = "Reference <strong>" + esc(reqRefHeld) + "</strong>. This is one quote request, not a purchase. Buying and deposits are not available online. Our office follows up.";
-    done.focus();
+  function setLocked(on) {
+    var i, nodes, formEl, fields;
+    nodes = document.querySelectorAll("[data-add]");
+    for (i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
+    nodes = document.querySelectorAll("[data-remove]");
+    for (i = 0; i < nodes.length; i++) nodes[i].disabled = !!on;
+    formEl = $("#qlist-form");
+    if (!formEl || !formEl.querySelectorAll) return;
+    fields = formEl.querySelectorAll("input, textarea, select");
+    for (i = 0; i < fields.length; i++) {
+      if (fields[i].id === "ql-submit") continue;
+      fields[i].disabled = !!on;
+    }
   }
-  var reqRefHeld = "";
-  function sendRequest(c) {
+  function showSent(ref) {
+    var done = $("#qlist-done");
+    var strong = $("#qlist-ref");
+    var para;
+    if (!strong && done) {
+      para = done.querySelector("p");
+      if (para) {
+        para.innerHTML = "Reference <strong id=\"qlist-ref\"></strong>. This is one quote request, not a purchase. Buying and deposits are not available online. Our office follows up.";
+        strong = $("#qlist-ref");
+      }
+    }
+    if (strong) strong.textContent = ref;
+    if (!done) return;
+    done.hidden = false;
+    if (done.focus) done.focus();
+  }
+  function withoutSent(live, snap) {
+    var left = [], next = [], i, j, found;
+    for (i = 0; i < snap.length; i++) left.push(snap[i]);
+    for (i = 0; i < live.length; i++) {
+      found = -1;
+      for (j = 0; j < left.length; j++) {
+        if (left[j].kind === live[i].kind && left[j].type === live[i].type && left[j].label === live[i].label) { found = j; break; }
+      }
+      if (found >= 0) left.splice(found, 1);
+      else next.push(live[i]);
+    }
+    return next;
+  }
+  function sent(snap) {
+    var ref = reqRef;
+    var next = withoutSent(items, snap);
+    showSent(ref);
+    items = next;
+    save();
+    reqRef = "";
+    reqTries = 0;
+    reqSig = "";
+    render();
+    if (next.length) return;
+    var empty = $("#qlist-empty");
+    if (empty) empty.hidden = true;
+    var count = $("#qlist-count");
+    if (count) count.textContent = "Sent.";
+    var formEl = $("#qlist-form");
+    if (formEl) formEl.hidden = true;
+    var stick = $("#qlist-bar");
+    if (stick) stick.hidden = true;
+    var call = $("#qlist-call");
+    if (call) call.textContent = "Your quote";
+  }
+  function sendRequest(c, snap) {
     if (sending) return;
     var btn = $("#ql-submit");
     sending = true; sendErr("");
+    setLocked(true);
     btn.disabled = true; btn.setAttribute("aria-busy", "true"); btn.textContent = "Sending\u2026";
     var retry = reqTries > 0; reqTries++;
     var ctl = window.AbortController ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
-    var done = function () { clearTimeout(timer); sending = false; btn.disabled = false; btn.removeAttribute("aria-busy"); btn.textContent = "Send my quote request"; };
+    var done = function () { clearTimeout(timer); sending = false; setLocked(false); btn.disabled = false; btn.removeAttribute("aria-busy"); btn.textContent = "Send my quote request"; };
     fetch(QUOTE_API.url, {
       method: "POST", mode: "cors", credentials: "omit", signal: ctl ? ctl.signal : undefined,
       headers: { "Content-Type": "application/json", apikey: QUOTE_API.key, Prefer: "return=minimal" },
-      body: JSON.stringify(rowFor(c))
+      body: JSON.stringify(rowFor(c, snap))
     }).then(function (r) {
-      if (r.ok || (r.status === 409 && retry)) { reqRefHeld = reqRef; done(); sent(c); return; }
-      if (r.status === 409) { done(); reqRef = S.newRef(); reqTries = 0; sendRequest(c); return; }
+      if (r.ok || (r.status === 409 && retry)) { done(); sent(snap); return; }
+      if (r.status === 409) { done(); reqRef = S.newRef(); reqTries = 0; sendRequest(c, snap); return; }
       throw new Error("HTTP " + r.status);
     }).catch(function () {
       done();
@@ -262,8 +330,11 @@
       if (!okName) { $("#ql-name").focus(); return; }
       if (!okReach) { var p = $("#ql-phone"); (p.getAttribute("aria-invalid") === "true" ? p : $("#ql-email")).focus(); return; }
       var c = S.unpackContact({ n: $("#ql-name").value, co: $("#ql-company").value, p: $("#ql-phone").value, e: $("#ql-email").value, a: $("#ql-addr").value, tl: $("#ql-when").value, x: $("#ql-notes").value });
-      if (!reqRef) reqRef = S.newRef();
-      sendRequest(c);
+      var snap = [], sig, s;
+      for (s = 0; s < items.length; s++) snap.push({ kind: items[s].kind, type: items[s].type, label: items[s].label });
+      sig = JSON.stringify({ items: snap, n: c.n, co: c.co, p: c.p, e: c.e, a: c.a, tl: c.tl, x: c.x });
+      if (!reqRef || sig !== reqSig) { reqRef = S.newRef(); reqSig = sig; reqTries = 0; }
+      sendRequest(c, snap);
     });
     $("#ql-name").addEventListener("input", function () { if (this.getAttribute("aria-invalid") === "true") checkName(); });
     ["#ql-phone", "#ql-email"].forEach(function (sel) {
