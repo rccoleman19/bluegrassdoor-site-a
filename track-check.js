@@ -325,6 +325,16 @@ function domNode(tag) {
   };
   node.scrollIntoView = function (opts) { node._scrolled = opts || {}; };
   node.focus = function () { node._focused = true; };
+  node.offsetWidth = 40;
+  node.insertAdjacentElement = function (where, el) {
+    var parent = node.parentElement;
+    if (!parent) return el;
+    var at = parent.children.indexOf(node);
+    if (at < 0) at = parent.children.length - 1;
+    el.parentElement = parent;
+    parent.children.splice(where === "afterend" ? at + 1 : at, 0, el);
+    return el;
+  };;
   Object.defineProperty(node, "innerHTML", {
     get: function () { return node._html; },
     set: function (html) {
@@ -338,6 +348,12 @@ function domNode(tag) {
         var text = /<strong[^>]*>([^<]*)<\/strong>/.exec(node._html);
         strong.textContent = text ? text[1] : "";
         node.appendChild(strong);
+      }
+      var reBtn = /<button\b[^>]*data-remove="(\d+)"[^>]*>/g, bm;
+      while ((bm = reBtn.exec(node._html))) {
+        var btn = domNode("button");
+        btn.setAttribute("data-remove", bm[1]);
+        node.appendChild(btn);
       }
     }
   });
@@ -440,7 +456,8 @@ function bootShop() {
     group.appendChild(head);
     add(group);
   });
-  add(tagged("div", "quote-list"));
+  add(tagged("div", "quote"));
+  add(tagged("h2", "qlist-title"));
   add(tagged("p", "qlist-count"));
   add(tagged("a", "qlist-call"));
   var stick = tagged("div", "qlist-bar");
@@ -491,6 +508,7 @@ function bootShop() {
     getElementById: function (id) { return byId(body, id); }
   };
   body.parentElement = doc;
+  doc.createElement = function (tag) { return domNode(tag); };
   listen(doc);
   ctx.document = doc;
   ctx.window = ctx;
@@ -622,7 +640,38 @@ async function checkShop() {
     await Promise.resolve();
     if (shop.calls.length !== 2 || shop.q("ql-send-err").classList.contains("is-on") || shop.q("qlist-done").hidden) {
       fail("same quote retry", "409 on the same list was not saved");
-    } else pass("same list 409 counts as saved");
+    }     else pass("same list 409 counts as saved");
+  }
+
+  shop = bootShop();
+  shop.emit(shop.addA, "click");
+  var note = shop.addA.parentElement.querySelector(".shop-added");
+  var noteText = note ? note.innerHTML : "";
+  if (shop.addA.textContent !== "Added \u2713") fail("add feedback", "button said " + shop.addA.textContent);
+  else if (noteText.indexOf("Added Hollow Metal, 1 item in your quote") === -1 || noteText.indexOf('href="#quote"') === -1) fail("add feedback", noteText);
+  else if (shop.q("qlist-bar-link").textContent !== "Your quote, 1 item") fail("add feedback", "bar " + shop.q("qlist-bar-link").textContent);
+  else if (!shop.q("qlist-call").classList.contains("is-pulse")) fail("add feedback", "quote bar did not pulse");
+  else {
+    shop.emit(shop.addA, "click");
+    var removes = shop.q("qlist-items").querySelectorAll("[data-remove]");
+    var again = shop.addA.parentElement.querySelector(".shop-added").innerHTML;
+    if (removes.length !== 1) fail("same item quantity", "lines " + removes.length);
+    else if (shop.q("qlist-items").innerHTML.indexOf("× 2") === -1 && shop.q("qlist-items").innerHTML.indexOf("x 2") === -1) fail("same item quantity", shop.q("qlist-items").innerHTML);
+    else if (again.indexOf("2 items") === -1 || shop.q("qlist-call").textContent !== "Your quote (2)") fail("same item quantity", again + " / " + shop.q("qlist-call").textContent);
+    else pass("add feedback and a second add raises quantity");
+  }
+
+  shop = bootShop();
+  shop.emit(shop.addA, "click");
+  shop.emit(shop.addB, "click");
+  var firstRemove = shop.q("qlist-items").querySelector("[data-remove]");
+  shop.emit(firstRemove, "click");
+  var left = shop.q("qlist-items").querySelectorAll("[data-remove]");
+  if (left.length !== 1 || !left[0]._focused) fail("remove focus", "next item was not focused");
+  else {
+    shop.emit(left[0], "click");
+    if (!shop.q("qlist-title")._focused) fail("remove focus", "empty list did not focus the heading");
+    else pass("remove moves focus to the next item, then the heading");
   }
 }
 

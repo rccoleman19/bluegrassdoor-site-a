@@ -29,6 +29,28 @@
   function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 8); }
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
+  function showShopList() {
+    var el = $("#shop-list-note");
+    if (!el) return;
+    var n = 0;
+    try {
+      var raw = sessionStorage.getItem("bgd-shop-quote");
+      var parsed = raw ? JSON.parse(raw) : [];
+      if (parsed && parsed.length) {
+        for (var i = 0; i < parsed.length; i++) {
+          if (!parsed[i] || !parsed[i].label) continue;
+          var q = parseInt(parsed[i].qty, 10);
+          n += isFinite(q) && q > 0 ? q : 1;
+        }
+      }
+    } catch (err) { n = 0; }
+    if (!n) { el.hidden = true; el.textContent = ""; return; }
+    var word = n === 1 ? "1 item" : n + " items";
+    el.innerHTML = "You have " + word + " in your shop quote list. <a href=\"shop.html#quote\">Send them</a>";
+    el.hidden = false;
+  }
+  showShopList();
+
   /* ---------- Sticky call bar (phones & tablets): shown once the homepage buttons scroll away, never over the door builder or the footer ---------- */
   var callbar = $(".callbar"), callGo = $("#callbar-go");
   var chatWrap = $("#chat");
@@ -159,7 +181,7 @@
   function stepOk(n) {
     if (n === 1) return !!state.type;
     if (n === 2) return !!state.material;
-    if (n === 3) return !!state.size && (state.size !== "custom" || !!(state.cw && state.ch));
+    if (n === 3) return !!state.size && (state.size !== "custom" || S.customOk(state));
     return state.hardware.length > 0 && (!R || R.evaluate(sel()).blocking.length === 0);
   }
   function reachable(n) { for (var k = 1; k < n; k++) if (!stepOk(k)) return false; return true; }
@@ -225,6 +247,11 @@
     btnNext.parentElement.classList.toggle("is-ready", !btnNext.disabled || editing >= 0);
     btnSave.hidden = !(editing >= 0 && step < MAX);
     btnSave.disabled = !S.isValid(state);
+    var sizeErr = $("#size-err");
+    if (sizeErr) {
+      var dirty = String(state.cw || "").trim() !== "" || String(state.ch || "").trim() !== "";
+      sizeErr.classList.toggle("is-on", state.size === "custom" && dirty && !S.customOk(state));
+    }
     showNotice();
   }
   function focusStep() {
@@ -757,6 +784,8 @@
       bot("Sorry you're dealing with that. For a broken, damaged, or unsecured door, please call our office at <strong>" + PHONE + "</strong>. We'll help you get it taken care of.", [CALL, MAIL]); } },
     { k: /(flag ?pole|flag)/i, r: function () {
       bot("Yes, we install flagpoles. They're built to stand tall in tough weather, so you can fly your American and state flags. When you'd like to talk about yours, call us at " + PHONE + " or send an email.", [CALL, MAIL]); } },
+    { k: /door closers?/i, r: function () {
+      bot("A door closer is hardware we offer: controlled self-closing, the same Door closer listed with our other hardware. A regular closer on a door, including an existing door, is that hardware. It is not an automatic or power operator. Call " + PHONE + ", or add a door closer when you build the door and send a quote request.", [{ go: "builder", label: "Build my door" }, CALL]); } },
     { k: /(fire|rated|code|egress|panic|exit device|stairwell)/i, r: function () {
       bot("We can help with that. We provide <strong>code-compliant fire-rated doors</strong>, along with hollow metal doors and frames and the hardware that goes with them, such as closers and exit devices. Tell us about your opening, build the door, or call " + PHONE + ".", [{ go: "builder", label: "Build my door" }, CALL]); } },
     { k: /(storefront|glass|entrance|entry|commercial|business|office|retail|industrial|security|safe ?room)/i, r: function () {

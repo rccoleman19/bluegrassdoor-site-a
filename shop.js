@@ -75,7 +75,8 @@
       for (var i = 0; i < parsed.length && items.length < 20; i++) {
         var it = parsed[i];
         if (!it || !it.label || !it.kind) continue;
-        items.push({ kind: String(it.kind), type: String(it.type || ""), label: String(it.label).slice(0, 80) });
+        var q = parseInt(it.qty, 10);
+        items.push({ kind: String(it.kind), type: String(it.type || ""), label: String(it.label).slice(0, 80), qty: isFinite(q) && q > 0 ? q : 1 });
       }
     } catch (e1) { items = []; }
   }
@@ -91,20 +92,27 @@
     if (kind === "hardware") return "Hardware";
     return "Flagpole";
   }
-  function plainLine(it) {
-    if (it.kind === "flagpole") return "Flagpole";
-    return kindWord(it.kind) + ": " + it.label;
+  function itemCount() {
+    var n = 0;
+    for (var i = 0; i < items.length; i++) n += items[i].qty || 1;
+    return n;
   }
+  function plainLine(it) {
+    var name = it.kind === "flagpole" ? "Flagpole" : kindWord(it.kind) + ": " + it.label;
+    if ((it.qty || 1) > 1) name += ", quantity " + it.qty;
+    return name;
+  }
+  function countWord(n) { return n === 1 ? "1 item" : n + " items"; }
   function render() {
     var list = $("#qlist-items"), empty = $("#qlist-empty"), form = $("#qlist-form");
-    var n = items.length;
-    $("#qlist-count").textContent = n === 0 ? "Nothing added yet." : (n === 1 ? "1 item" : n + " items");
+    var n = itemCount();
+    $("#qlist-count").textContent = n === 0 ? "Nothing added yet." : countWord(n);
     var call = $("#qlist-call");
     if (call) call.textContent = n ? "Your quote (" + n + ")" : "Your quote";
     var stick = $("#qlist-bar"), names = $("#qlist-bar-names"), link = $("#qlist-bar-link");
     if (stick) {
       stick.hidden = n === 0;
-      if (link) link.textContent = n === 1 ? "Your quote, 1 item" : "Your quote, " + n + " items";
+      if (link) link.textContent = "Your quote, " + countWord(n);
       if (names) {
         var bits = [];
         for (var i = 0; i < items.length; i++) bits.push(plainLine(items[i]));
@@ -117,25 +125,70 @@
     var html = "";
     for (var k = 0; k < items.length; k++) {
       var it = items[k];
-      html += "<li><span><span class=\"qlist__kind\">" + esc(kindWord(it.kind)) + "</span><span class=\"qlist__name\">" + esc(it.kind === "flagpole" ? "Flagpole" : it.label) + "</span></span>" +
+      var shown = it.kind === "flagpole" ? "Flagpole" : it.label;
+      if ((it.qty || 1) > 1) shown += " × " + it.qty;
+      html += "<li><span><span class=\"qlist__kind\">" + esc(kindWord(it.kind)) + "</span><span class=\"qlist__name\">" + esc(shown) + "</span></span>" +
         "<button type=\"button\" class=\"btn btn--text\" data-remove=\"" + k + "\">Remove</button></li>";
     }
     list.innerHTML = html;
   }
   function addItem(kind, type, label) {
-    if (sending || !kind || !label || items.length >= 20) return;
+    if (sending || !kind || !label) return 0;
+    type = type || "";
+    var found = -1, i;
+    for (i = 0; i < items.length; i++) {
+      if (items[i].kind === kind && items[i].type === type && items[i].label === label) { found = i; break; }
+    }
+    if (found === -1) {
+      if (items.length >= 20) return 0;
+      items.push({ kind: kind, type: type, label: label, qty: 1 });
+    } else items[found].qty = (items[found].qty || 1) + 1;
     var done = $("#qlist-done"); if (done) done.hidden = true;
-    items.push({ kind: kind, type: type || "", label: label });
     save();
     render();
-    $("#qlist-count").textContent = "Added " + (kind === "flagpole" ? "Flagpole" : label) + ". " + (items.length === 1 ? "1 item" : items.length + " items") + " in your quote.";
+    return itemCount();
+  }
+  function markAdded(btn, label, n) {
+    var old = btn.getAttribute("data-label-rest") || "Add to quote";
+    if (!btn.getAttribute("data-label-rest")) btn.setAttribute("data-label-rest", btn.textContent || "Add to quote");
+    old = btn.getAttribute("data-label-rest") || old;
+    btn.textContent = "Added \u2713";
+    btn.classList.add("is-added");
+    if (btn._addedTimer) clearTimeout(btn._addedTimer);
+    btn._addedTimer = setTimeout(function () {
+      btn.textContent = old;
+      btn.classList.remove("is-added");
+    }, 1800);
+    var host = btn.parentElement;
+    if (!host || !document.createElement) return;
+    var note = host.querySelector ? host.querySelector(".shop-added") : null;
+    if (!note) {
+      note = document.createElement("p");
+      note.className = "shop-added";
+    if (note.classList) note.classList.add("shop-added");
+      note.setAttribute("role", "status");
+      if (btn.insertAdjacentElement) btn.insertAdjacentElement("afterend", note);
+      else host.appendChild(note);
+    }
+    note.innerHTML = "Added " + esc(label) + ", " + countWord(n) + " in your quote. <a href=\"#quote\">See the list</a>";
+  }
+  function pulseCall() {
+    var call = $("#qlist-call");
+    if (!call || !call.classList) return;
+    call.classList.remove("is-pulse");
+    void call.offsetWidth;
+    call.classList.add("is-pulse");
   }
   document.addEventListener("click", function (e) {
     var add = e.target.closest && e.target.closest("[data-add]");
     var rm = e.target.closest && e.target.closest("[data-remove]");
     if (sending && (add || rm)) return;
     if (add) {
-      addItem(add.getAttribute("data-add"), add.getAttribute("data-type") || "", add.getAttribute("data-label") || "");
+      var label = add.getAttribute("data-label") || "";
+      var n = addItem(add.getAttribute("data-add"), add.getAttribute("data-type") || "", label);
+      if (!n) return;
+      markAdded(add, add.getAttribute("data-add") === "flagpole" ? "Flagpole" : label, n);
+      pulseCall();
       return;
     }
     if (!rm) return;
@@ -146,6 +199,18 @@
     items = next;
     save();
     render();
+    var listEl = $("#qlist-items");
+    var buttons = listEl && listEl.querySelectorAll ? listEl.querySelectorAll("[data-remove]") : [];
+    if (!items.length) {
+      var head = $("#qlist-title");
+      if (head) {
+        if (head.getAttribute("tabindex") == null) head.setAttribute("tabindex", "-1");
+        if (head.focus) head.focus();
+      }
+    } else if (buttons && buttons.length) {
+      var at = idx < buttons.length ? idx : buttons.length - 1;
+      if (buttons[at] && buttons[at].focus) buttons[at].focus();
+    }
   });
 
   function fieldErr(el, bad) {
@@ -197,7 +262,7 @@
     else if (it.kind === "frame") know = ["Frame on this quote."];
     else know = ["Door type chosen on the shop list. Material and size were not chosen here."];
     return {
-      door: i + 1, location: "", quantity: 1,
+      door: i + 1, location: "", quantity: it.qty || 1,
       type: it.kind === "flagpole" ? "Flagpole" : it.label,
       type_id: it.kind === "flagpole" ? "flagpole" : (it.type || it.kind),
       material: "", material_id: "", size: "", size_id: "", custom_size: false,
@@ -227,7 +292,7 @@
     return {
       reference: reqRef, name: c.n, company: c.co || null, phone: c.p || null, email: c.e || null,
       project_location: c.a || null, timeline: c.tl || null, notes: notesFor(c.x, list),
-      doors: doors, door_count: doors.length, total_quantity: doors.length,
+      doors: doors, door_count: doors.length, total_quantity: (function () { var t = 0; for (var q = 0; q < list.length; q++) t += list[q].qty || 1; return t; })(),
       build_link: page, office_link: page,
       user_agent: String(navigator.userAgent || "").slice(0, 400)
     };
@@ -263,15 +328,18 @@
     if (done.focus) done.focus();
   }
   function withoutSent(live, snap) {
-    var left = [], next = [], i, j, found;
+    var left = [], next = [], i, j, found, extra;
     for (i = 0; i < snap.length; i++) left.push(snap[i]);
     for (i = 0; i < live.length; i++) {
       found = -1;
       for (j = 0; j < left.length; j++) {
         if (left[j].kind === live[i].kind && left[j].type === live[i].type && left[j].label === live[i].label) { found = j; break; }
       }
-      if (found >= 0) left.splice(found, 1);
-      else next.push(live[i]);
+      if (found >= 0) {
+        extra = (live[i].qty || 1) - (left[found].qty || 1);
+        if (extra > 0) next.push({ kind: live[i].kind, type: live[i].type, label: live[i].label, qty: extra });
+        left.splice(found, 1);
+      } else next.push(live[i]);
     }
     return next;
   }
@@ -325,13 +393,13 @@
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       showErr("#ql-list-err", items.length === 0);
-      if (!items.length) { var listTop = $("#quote-list"); if (listTop) listTop.scrollIntoView({ block: "nearest" }); return; }
+      if (!items.length) { var listTop = $("#quote"); if (listTop) listTop.scrollIntoView({ block: "nearest" }); return; }
       var okName = checkName(), okReach = checkReach();
       if (!okName) { $("#ql-name").focus(); return; }
       if (!okReach) { var p = $("#ql-phone"); (p.getAttribute("aria-invalid") === "true" ? p : $("#ql-email")).focus(); return; }
       var c = S.unpackContact({ n: $("#ql-name").value, co: $("#ql-company").value, p: $("#ql-phone").value, e: $("#ql-email").value, a: $("#ql-addr").value, tl: $("#ql-when").value, x: $("#ql-notes").value });
       var snap = [], sig, s;
-      for (s = 0; s < items.length; s++) snap.push({ kind: items[s].kind, type: items[s].type, label: items[s].label });
+      for (s = 0; s < items.length; s++) snap.push({ kind: items[s].kind, type: items[s].type, label: items[s].label, qty: items[s].qty || 1 });
       sig = JSON.stringify({ items: snap, n: c.n, co: c.co, p: c.p, e: c.e, a: c.a, tl: c.tl, x: c.x });
       if (!reqRef || sig !== reqSig) { reqRef = S.newRef(); reqSig = sig; reqTries = 0; }
       sendRequest(c, snap);
