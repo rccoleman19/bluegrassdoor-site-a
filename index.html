@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg" media="(max-width: 1023px)">
   <link rel="preload" as="image" href="images/crew-hero-desktop.jpg" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="styles.css?v=cc14">
+  <link rel="stylesheet" href="styles.css?v=cc15">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -103,6 +103,7 @@
   </header>
 
   <main id="main">
+    <p class="shop-list-note" id="shop-list-note" hidden></p>
     <!-- OPENING: crew photo, then the door builder -->
     <section class="hb" id="builder" aria-labelledby="hero-title">
       <div class="hb__band">
@@ -143,10 +144,11 @@
               <p class="builder__hint">Not sure? Pick &ldquo;Not sure&rdquo; and we'll measure.</p>
               <div class="opts" data-field="size" role="radiogroup" aria-label="Size"></div>
               <div class="custom-size" id="custom-size" hidden>
-                <label>Width (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-w" placeholder="36"></label>
+                <label>Width (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-w" placeholder="36" aria-describedby="size-err"></label>
                 <span aria-hidden="true">&times;</span>
-                <label>Height (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-h" placeholder="84"></label>
+                <label>Height (inches)<input type="number" inputmode="numeric" min="12" max="240" id="size-h" placeholder="84" aria-describedby="size-err"></label>
                 <input type="hidden" id="size-q" value="1">
+                <p class="field__err" id="size-err">Enter a width and a height from 12 to 240 inches.</p>
               </div>
             </div>
             <div class="builder__panel" data-step="4" hidden>
@@ -676,10 +678,10 @@
   </div>
 
   <script src="door-preview.js?v=dim2"></script>
-  <script src="builder-rules.js?v=viz1"></script>
-  <script src="door-spec.js?v=spec2"></script>
+  <script src="builder-rules.js?v=viz2"></script>
+  <script src="door-spec.js?v=spec3"></script>
   <script src="code-checks.js?v=cc2"></script>
-  <script src="app.js?v=cc7"></script>
+  <script src="app.js?v=cc8"></script>
   <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz2"></script>
 </body>

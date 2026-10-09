@@ -28,7 +28,7 @@ The table matches the quote inbox rule: the public site can add a row and cannot
 
 The write uses the same public publishable key as the quote form. The same events are also sent to PostHog on the US cloud, using the project key in `track.js`. To point the script somewhere else, set `window.BGD_TRACK` before `track.js` runs (`url`, `key`, and an optional `posthogKey`). If session storage is blocked, that tab keeps its session id and step count in memory only, still stopping at 500, with no cookie and no local storage.
 
-Run `node track-check.js` from this folder to check quote save counts, visible time, and a blocked session store. It stays on this machine and does not add a quote request.
+Run `node track-check.js` from this folder to check quote save counts, visible time, a blocked session store, and the shop quote list. Run `node smoke-check.js` to check custom sizes, required hardware, and the deadbolt and panic message. Both stay on this machine and do not add a quote request.
 
 Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `quote_add`, `gallery_open`, `engage`, `page_leave`.
 

@@ -45,6 +45,7 @@ One door, using the choices the door builder already offers:
 - Hardware (`door_hardware`, repeat the field for each choice): at least one, or Recommend for me.
   - Not a barn door: Lever lockset, Deadbolt, Panic / exit device, Door closer, Keypad / access control, Hinges / pivots, Kick plate & accessories, Recommend for me.
   - Barn door: Barn track hardware, Door pull / handle, Privacy latch, Soft-close, Recommend for me.
+- A door closer is hardware already listed (controlled self-closing). A regular closer, including on an existing door, is that hardware. An automatic or power operator that opens a door by itself is not listed.
 - `door_quantity`: how many of that same door. Blank means 1. Maximum 500.
 - `door_location`: where it goes. Optional.
 - `name`: required.

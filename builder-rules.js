@@ -50,7 +50,7 @@
 
     /* ---------- required items ---------- */
     { id: "fire-needs-closer", severity: "missing",
-      when: { type: ["fire"], hwChosen: true, hwNone: ["closer"] },
+      when: { type: ["fire"], hwChosen: true, withRecommend: true, hwNone: ["closer"] },
       fix: { add: "closer" },
       say: "Fire-rated doors need a closer, so we added one.",
       locked: "Fire-rated doors must close on their own, so the closer stays on." },
@@ -59,7 +59,7 @@
       fix: { oneOf: ["lever", "panic", "keypad"] },
       say: "Fire-rated doors must latch shut. Add a lever lockset, fire exit hardware or a keypad lock (a deadbolt doesn't count as the latch), or choose Recommend for me." },
     { id: "barn-needs-track", severity: "missing",
-      when: { type: ["barn"], hwChosen: true, hwNone: ["barntrack"] },
+      when: { type: ["barn"], hwChosen: true, withRecommend: true, hwNone: ["barntrack"] },
       fix: { add: "barntrack" },
       say: "Barn doors hang from a track, so we added one.",
       locked: "Every barn door hangs from a track, so it stays on." },
@@ -169,7 +169,7 @@
     if (w.hwAny && !w.hwAny.some(function (h) { return has(hw, h); })) return false;
     if (w.hwAll && !w.hwAll.every(function (h) { return has(hw, h); })) return false;
     if (w.hwNone && w.hwNone.some(function (h) { return has(hw, h); })) return false;
-    if (w.hwChosen && (has(hw, "recommend") || (!hw.length && !assumeChosen))) return false;
+    if (w.hwChosen && ((!hw.length && !assumeChosen) || (has(hw, "recommend") && !w.withRecommend))) return false;
     if (w.customOver && !((+sel.customW || 0) > w.customOver || (+sel.customH || 0) > w.customOver)) return false;
     return true;
   }

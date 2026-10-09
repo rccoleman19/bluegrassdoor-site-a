@@ -87,6 +87,45 @@
   sizeEl.addEventListener("change", syncDoor);
   syncDoor();
 
+  function conflictSay() {
+    var rule = R && R.byId ? R.byId("panic-plus-deadbolt") : null;
+    return rule && rule.say ? rule.say : "A panic bar has to open the door in one push, so it can't be combined with a separate deadbolt.";
+  }
+  function hardwareConflict() {
+    if (typeEl.value === "barn") return false;
+    var picked = checkedHardware(typeEl.value);
+    return picked.indexOf("Deadbolt") > -1 && picked.indexOf("Panic / exit device") > -1;
+  }
+  $$("#door-hw-std input, #door-hw-barn input").forEach(function (el) {
+    el.addEventListener("change", function () {
+      var err = $("#door-hw-err");
+      if (hardwareConflict()) { err.textContent = conflictSay(); err.classList.add("is-on"); }
+      else if (err.textContent === conflictSay()) err.classList.remove("is-on");
+    });
+  });
+
+  function showShopList() {
+    var el = $("#shop-list-note");
+    if (!el) return;
+    var n = 0;
+    try {
+      var raw = sessionStorage.getItem("bgd-shop-quote");
+      var parsed = raw ? JSON.parse(raw) : [];
+      if (parsed && parsed.length) {
+        for (var i = 0; i < parsed.length; i++) {
+          if (!parsed[i] || !parsed[i].label) continue;
+          var q = parseInt(parsed[i].qty, 10);
+          n += isFinite(q) && q > 0 ? q : 1;
+        }
+      }
+    } catch (err) { n = 0; }
+    if (!n) { el.hidden = true; el.textContent = ""; return; }
+    var word = n === 1 ? "1 item" : n + " items";
+    el.innerHTML = "You have " + word + " in your shop quote list. <a href=\"shop.html#quote\">Send them</a>";
+    el.hidden = false;
+  }
+  showShopList();
+
   function checkedHardware(type) {
     var box = type === "barn" ? "#door-hw-barn" : "#door-hw-std";
     var picked = $$(box + " input:checked").map(function (el) { return el.value; });
@@ -107,8 +146,10 @@
     var wOk = !custom || (wNum >= 12 && wNum <= 240 && hNum >= 12 && hNum <= 240);
     $("#door-custom-err").classList.toggle("is-on", custom && !wOk);
     var hw = checkedHardware(typeEl.value);
-    $("#door-hw-err").textContent = "Choose at least one hardware option, or Recommend for me.";
-    $("#door-hw-err").classList.toggle("is-on", hw.length === 0);
+    var conflict = hardwareConflict();
+    if (conflict) $("#door-hw-err").textContent = conflictSay();
+    else $("#door-hw-err").textContent = "Choose at least one hardware option, or Recommend for me.";
+    $("#door-hw-err").classList.toggle("is-on", hw.length === 0 || conflict);
     var nameEl = $("#door-name");
     var nameOk = !!nameEl.value.trim();
     fieldErr(nameEl, !nameOk);
@@ -117,7 +158,7 @@
     if (!matOk) { matEl.focus(); return; }
     if (!sizeOk) { sizeEl.focus(); return; }
     if (custom && !wOk) { $("#door-width").focus(); return; }
-    if (!hw.length) { $(typeEl.value === "barn" ? "#door-hw-barn input" : "#door-hw-std input").focus(); return; }
+    if (!hw.length || conflict) { $(typeEl.value === "barn" ? "#door-hw-barn input" : "#door-hw-std input").focus(); return; }
     if (!nameOk) { nameEl.focus(); return; }
     if (!reach) { $("#door-phone").focus(); return; }
 

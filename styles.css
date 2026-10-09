@@ -22,8 +22,8 @@
 }
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: clip; }
-body { margin: 0; font-family: var(--body); font-size: 17px; line-height: 1.6; color: var(--text); background: var(--white); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; overflow-x: clip; overflow-y: visible; }
+body { margin: 0; font-family: var(--body); font-size: 17px; line-height: 1.6; color: var(--text); background: var(--white); -webkit-font-smoothing: antialiased; overflow-x: clip; overflow-y: visible; }
 img { max-width: 100%; display: block; }
 a { color: var(--blue); }
 h1, h2, h3, h4 { font-family: var(--head); color: var(--ink); line-height: 1.05; margin: 0 0 .5em; letter-spacing: .005em; }
@@ -36,7 +36,13 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .skip:focus { top: 12px; }
 :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
 .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.shop-list-note { margin: 0; padding: 10px 20px; background: #fff8e8; border-bottom: 1px solid #f0d48a; font-size: .95rem; text-align: center; }
+.shop-list-note a { font-weight: 700; }
 [id] { scroll-margin-top: calc(var(--header-h) + 12px); }
+/* Phones: #about and #contact were landing about 14px past the heading. */
+@media (max-width: 1023px) {
+  [id] { scroll-margin-top: calc(var(--header-h) + 26px); }
+}
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 12px 22px; border-radius: 10px; border: 2px solid transparent; font-family: var(--body); font-size: 1rem; font-weight: 700; letter-spacing: .01em; text-decoration: none; cursor: pointer; transition: background .2s, color .2s, border-color .2s, transform .2s, box-shadow .2s; }
@@ -284,6 +290,7 @@ body.nav-open { overflow: hidden; }
 .custom-size label { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; flex: 1 1 110px; }
 .custom-size > span { padding-bottom: 14px; color: var(--muted); }
 .custom-size input { width: 100%; }
+#size-err.is-on { display: block; flex: 1 1 100%; }
 /* Builder: compatibility states (builder-rules.js) */
 .opt.is-disabled { background: #f6f7f9; border-style: dashed; border-color: #d5dbe5; cursor: not-allowed; }
 .opt.is-disabled:hover { border-color: #c4ccd9; }

@@ -76,7 +76,8 @@
     return r;
   }
   function oneLine(d) { return [materialLabel(d.type, d.material), sizeText(d)].filter(Boolean).join(" · "); }
-  function isComplete(d) { return !!(d && d.type && d.material && d.size && d.hardware && d.hardware.length && (d.size !== "custom" || (d.cw && d.ch))); }
+  function customOk(d) { return !d || d.size !== "custom" || !!(inch(d.cw) && inch(d.ch)); }
+  function isComplete(d) { return !!(d && d.type && d.material && d.size && d.hardware && d.hardware.length && customOk(d)); }
   function isValid(d) { return isComplete(d) && (!R || R.evaluate(sel(d)).blocking.length === 0); }
   function totalCount(doors) { return doors.reduce(function (a, d) { return a + (d.qty || 1); }, 0); }
 
@@ -237,7 +238,7 @@
     TYPES: TYPES, MATERIALS: MATERIALS, SIZES: SIZES, HW_STD: HW_STD, HW_BARN: HW_BARN, TIMELINES: TIMELINES,
     materialsFor: materialsFor, hwListFor: hwListFor, typeLabel: typeLabel, materialLabel: materialLabel, find: find,
     sel: sel, hwTitle: hwTitle, hwTitles: hwTitles, sizeText: sizeText, notes: notes, rows: rows, oneLine: oneLine,
-    isComplete: isComplete, isValid: isValid, totalCount: totalCount, previewSel: previewSel,
+    isComplete: isComplete, isValid: isValid, customOk: customOk, totalCount: totalCount, previewSel: previewSel,
     encode: encode, decode: decode, buildPayload: buildPayload, requestPayload: requestPayload, unpackContact: unpackContact,
     newRef: newRef, record: record, subject: subject, emailBody: emailBody, doorText: doorText, doorHeading: doorHeading, cleanText: cleanText
   };
