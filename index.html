@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg" media="(max-width: 1023px)">
   <link rel="preload" as="image" href="images/crew-hero-desktop.jpg" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="styles.css?v=cc16">
+  <link rel="stylesheet" href="styles.css?v=cc17">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -42,7 +42,7 @@
     }
   }
   </script>
-  <script src="track.js?v=tr5" defer></script>
+  <script src="track.js?v=tr6" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -547,6 +547,7 @@
               <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
               <div><small>Phone</small><a href="tel:+12707803235">270-780-3235</a></div>
             </li>
+            <li class="contact__after"><button type="button" data-open-call>After hours? Talk to Dory</button></li>
             <li>
               <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
               <div><small>Email</small><a href="mailto:sonya@bluegrassdoor.com">sonya@bluegrassdoor.com</a></div>
@@ -655,6 +656,7 @@
       </header>
       <div class="chat__log" id="chat-log" aria-live="polite"></div>
       <div class="chat__chips" id="chat-chips"></div>
+      <button type="button" class="chat__voice" data-open-call>Talk to Dory by voice</button>
       <form class="chat__form" id="chat-form">
         <label class="sr-only" for="chat-input">Type your question</label>
         <input id="chat-input" type="text" autocomplete="off" maxlength="600" placeholder="Type your question...">
@@ -663,6 +665,22 @@
         </button>
       </form>
     </section>
+  </div>
+
+  <div class="vline" id="vline" hidden>
+    <div class="vline__card" role="dialog" aria-modal="true" aria-labelledby="vline-title">
+      <p class="vline__kicker" id="vline-kicker">Calling</p>
+      <h2 id="vline-title">Dory</h2>
+      <p class="vline__status" id="vline-status">Bluegrass Commercial Door &amp; More</p>
+      <div class="vline__rings" id="vline-rings" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="vline__captions" id="vline-captions" aria-live="polite"></div>
+      <p class="vline__fallback" id="vline-fallback" hidden>Voice isn't available in this browser. You can type to Dory instead.</p>
+      <div class="vline__actions">
+        <button type="button" id="vline-type" hidden>Type to Dory</button>
+        <button type="button" id="vline-mute" aria-pressed="false">Mute</button>
+        <button type="button" id="vline-end">End</button>
+      </div>
+    </div>
   </div>
 
   <!-- Lightbox -->
@@ -679,6 +697,7 @@
   <script src="door-spec.js?v=spec3"></script>
   <script src="code-checks.js?v=cc2"></script>
   <script src="app.js?v=cc9"></script>
+  <script src="call-dory.js?v=cd1"></script>
   <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz2"></script>
 </body>

@@ -85,7 +85,8 @@ create table if not exists public.site_events (
   constraint site_events_event_ok check (event in (
     'page_view', 'click', 'tel_click', 'mailto_click', 'scroll_depth', 'section_enter',
     'hover', 'focus', 'form_focus', 'quote_submit', 'quote_submit_ok', 'quote_submit_fail',
-    'chat_open', 'chat_close', 'chat_send', 'quote_add', 'gallery_open', 'engage', 'page_leave'
+    'chat_open', 'chat_close', 'chat_send', 'quote_add', 'gallery_open', 'engage', 'page_leave',
+    'call_start', 'call_end', 'quote_from_call'
   )),
   constraint site_events_step_ok check (step >= 1 and step <= 500),
   constraint site_events_sid_ok check (sid ~ '^[a-z0-9]{8,40}$'),
@@ -122,7 +123,8 @@ create policy "website can add a visitor event"
     event in (
       'page_view', 'click', 'tel_click', 'mailto_click', 'scroll_depth', 'section_enter',
       'hover', 'focus', 'form_focus', 'quote_submit', 'quote_submit_ok', 'quote_submit_fail',
-      'chat_open', 'chat_close', 'chat_send', 'quote_add', 'gallery_open', 'engage', 'page_leave'
+      'chat_open', 'chat_close', 'chat_send', 'quote_add', 'gallery_open', 'engage', 'page_leave',
+      'call_start', 'call_end', 'quote_from_call'
     )
     and step >= 1 and step <= 500
     and sid ~ '^[a-z0-9]{8,40}$'

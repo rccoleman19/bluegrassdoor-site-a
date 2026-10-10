@@ -29,7 +29,8 @@
    Events:
    page_view, click, tel_click, mailto_click, scroll_depth, section_enter,
    hover, focus, form_focus, quote_submit, quote_submit_ok, quote_submit_fail,
-   chat_open, chat_close, chat_send, gallery_open, engage, page_leave.
+   chat_open, chat_close, chat_send, gallery_open, engage, page_leave,
+   call_start, call_end, quote_from_call.
 
    A visitor's name, phone, email, address, company, and notes are never copied
    into an event. Phone and email clicks are counted without the number or
@@ -551,6 +552,20 @@
   });
   window.addEventListener("pagehide", onHide);
   window.addEventListener("pageshow", resume);
+  window.BGD_CALL_EVENT = function (name, props) {
+    var allow = { call_start: 1, call_end: 1, quote_from_call: 1 };
+    var keep = { seconds: 1, voice: 1, kind: 1 };
+    var safe, k;
+    if (!allow[name]) return;
+    safe = {};
+    props = props || {};
+    for (k in props) {
+      if (!own(props, k) || !keep[k]) continue;
+      if (k === "kind" && props[k] !== "quote" && props[k] !== "callback") continue;
+      safe[k] = props[k];
+    }
+    send(name, safe);
+  };
   send("page_view", { path: pagePath() });
   watchSections();
   measureScroll();
