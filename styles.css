@@ -36,8 +36,6 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 .skip:focus { top: 12px; }
 :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
 .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-.shop-list-note { margin: 0; padding: 10px 20px; background: #fff8e8; border-bottom: 1px solid #f0d48a; font-size: .95rem; text-align: center; }
-.shop-list-note a { font-weight: 700; }
 [id] { scroll-margin-top: calc(var(--header-h) + 12px); }
 /* Phones: #about and #contact were landing about 14px past the heading. */
 @media (max-width: 1023px) {
@@ -290,7 +288,6 @@ body.nav-open { overflow: hidden; }
 .custom-size label { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; flex: 1 1 110px; }
 .custom-size > span { padding-bottom: 14px; color: var(--muted); }
 .custom-size input { width: 100%; }
-#size-err.is-on { display: block; flex: 1 1 100%; }
 /* Builder: compatibility states (builder-rules.js) */
 .opt.is-disabled { background: #f6f7f9; border-style: dashed; border-color: #d5dbe5; cursor: not-allowed; }
 .opt.is-disabled:hover { border-color: #c4ccd9; }
@@ -360,6 +357,9 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .field { margin-bottom: 14px; }
 .field label { display: block; font-weight: 700; font-size: .92rem; margin-bottom: 6px; color: var(--ink); }
 .field__err { display: none; color: #c62828; font-size: .86rem; margin: 6px 0 0; }
+.custom-size #size-err.is-on { display: block; flex: 1 1 100%; }
+.builder-manual { margin: 18px 0 0; font-size: .92rem; color: var(--muted); }
+.builder-manual a { font-weight: 600; }
 .field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: #c62828; }
 .field.is-invalid .field__err { display: block; }
 .quote__fine { text-align: center; color: var(--muted); font-size: .92rem; margin: 12px 0 0; }

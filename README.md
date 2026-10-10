@@ -22,15 +22,15 @@ The help chat sends typed questions to the Supabase Edge Function `chat` (same p
 
 ## Visitor tracking
 
-`track.js` is loaded on the homepage, shop, flagpoles, start, and quote-link pages. Each event is kept in `window.dataLayer` and `window.BGD_EVENTS` with `step` and `t`, so one browser tab has an ordered path. The same row is added to the Supabase table `site_events` on project `bluegrassdoor`.
+`track.js` is loaded on the homepage, flagpoles, the quote request page, and quote-link pages. Each event is kept in `window.dataLayer` and `window.BGD_EVENTS` with `step` and `t`, so one browser tab has an ordered path. The same row is added to the Supabase table `site_events` on project `bluegrassdoor`.
 
 The table matches the quote inbox rule: the public site can add a row and cannot read, change, or delete rows. Row Level Security allows an insert for the `anon` role only. There is no select policy for that role. The row has no name, phone, email, address, or notes column. A database trigger drops those keys if a request still sends them. Nothing on this table sends email.
 
 The write uses the same public publishable key as the quote form. The same events are also sent to PostHog on the US cloud, using the project key in `track.js`. To point the script somewhere else, set `window.BGD_TRACK` before `track.js` runs (`url`, `key`, and an optional `posthogKey`). If session storage is blocked, that tab keeps its session id and step count in memory only, still stopping at 500, with no cookie and no local storage.
 
-Run `node track-check.js` from this folder to check quote save counts, visible time, a blocked session store, and the shop quote list. Run `node smoke-check.js` to check custom sizes, required hardware, and the deadbolt and panic message. Both stay on this machine and do not add a quote request.
+Run `node track-check.js` from this folder to check quote save counts, visible time, and a blocked session store. Run `node smoke-check.js` to check custom sizes, required hardware, and the short quote request. Both stay on this machine and do not add a quote request.
 
-Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `quote_add`, `gallery_open`, `engage`, `page_leave`.
+Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `gallery_open`, `engage`, `page_leave`.
 
 A visitor's name, phone, email, address, company, and notes are never copied into an event. A phone or email click is counted as `tel_click` or `mailto_click` without the number or address. The page path is the pathname only, so a saved quote link's query string and hash stay out of the event.
 

@@ -29,7 +29,7 @@
    Events:
    page_view, click, tel_click, mailto_click, scroll_depth, section_enter,
    hover, focus, form_focus, quote_submit, quote_submit_ok, quote_submit_fail,
-   chat_open, chat_close, chat_send, quote_add, gallery_open, engage, page_leave.
+   chat_open, chat_close, chat_send, gallery_open, engage, page_leave.
 
    A visitor's name, phone, email, address, company, and notes are never copied
    into an event. Phone and email clicks are counted without the number or
@@ -343,16 +343,6 @@
     }
     if (el.id === "chat-close") {
       send("chat_close", { path: path });
-      return;
-    }
-    if (el.getAttribute("data-add")) {
-      send("quote_add", {
-        kind: el.getAttribute("data-add"),
-        type: el.getAttribute("data-type") || "",
-        item: el.getAttribute("data-label") || "",
-        where: where,
-        path: path
-      });
       return;
     }
     if (el.classList && el.classList.contains("gallery__item")) {
