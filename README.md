@@ -30,7 +30,9 @@ The write uses the same public publishable key as the quote form. The same event
 
 Run `node track-check.js` from this folder to check quote save counts, visible time, and a blocked session store. Run `node smoke-check.js` to check custom sizes, required hardware, and the short quote request. Both stay on this machine and do not add a quote request.
 
-Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `gallery_open`, `engage`, `page_leave`.
+Events: `page_view`, `click`, `tel_click`, `mailto_click`, `scroll_depth`, `section_enter`, `hover`, `focus`, `form_focus`, `quote_submit`, `quote_submit_ok`, `quote_submit_fail`, `chat_open`, `chat_close`, `chat_send`, `gallery_open`, `engage`, `page_leave`, `call_start`, `call_end`, `quote_from_call`.
+
+The homepage can also open an after-hours voice line with Dory, using the browser's own speech tools. A name and callback number from that line go only into the quote request. The voice events above do not carry them. A person is still at 270-780-3235.
 
 A visitor's name, phone, email, address, company, and notes are never copied into an event. A phone or email click is counted as `tel_click` or `mailto_click` without the number or address. The page path is the pathname only, so a saved quote link's query string and hash stay out of the event.
 
