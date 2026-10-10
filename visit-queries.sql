@@ -32,7 +32,6 @@ limit 40;
 with catalog(page) as (
   values
     ('home'),
-    ('shop.html'),
     ('flagpoles.html'),
     ('start.html'),
     ('request.html'),

@@ -29,9 +29,9 @@ Partitions are not in the quote forms. Call or email about partitions.
 - [Call 270-780-3235](tel:+12707803235)
 - [Email sonya@bluegrassdoor.com](mailto:sonya@bluegrassdoor.com)
 
-## What a standard door request includes
+## Door builder choices
 
-One door, using the choices the door builder already offers:
+A door quote starts in the door builder. One door uses these choices:
 
 - Door type (`door_type`): `storefront` Storefront / Entrance, `hollow` Hollow Metal / Steel, `fire` Fire-Rated Door, `security` Security / Safe Room, `swing` Interior / Exterior Swing, `barn` Sliding Barn Door.
 - Material (`door_material`): one id offered for that type, or `recommend` (Recommend for me).
@@ -55,14 +55,22 @@ One door, using the choices the door builder already offers:
 
 What happens next: the request goes to the office, and the office follows up. It is not an instant purchase.
 
-The homepage door builder can send more than one different door. This form sends one door.
+The homepage door builder can send more than one different door.
 
-## Door quote form
+## Door quote
 
-- Human page: [Request a door quote](start.html#door-form)
-- Also: [Door builder on the homepage](index.html#builder), which saves a door quote the same way after the door is built.
-- Open `start.html#door-form`, set the fields above, and submit **Send my door quote request**. The page script must be running. It saves the quote request the same way the door builder does.
+- Human page: [Door builder](index.html#builder). That is the quote path for a door.
+- Open the builder, choose the door, then submit **Send my quote request**. The page script must be running.
 - You get a reference. Buying and deposits are not available online.
+
+## Short quote request
+
+This is not a second main button. It is the short form for someone who would rather not use the builder.
+
+- Page: [Send a quote request](start.html#manual)
+- Fields: `name` (required), `phone` or `email` (at least one), optional `company`, `address`, `timeline`, `notes`.
+- `timeline` uses the same four choices as a door quote.
+- Submit **Send my quote request**. The saved note says the request was sent without the door builder. The office follows up.
 
 ## Flagpole quote form
 
@@ -76,8 +84,7 @@ No height, price, or deposit.
 
 ## Pages
 
-- [Home](index.html): Company, services, door builder, and contact.
-- [Shop](shop.html): Doors, frames, hardware, and flagpoles. Add more than one to a single quote list, then send that list. The same quote inbox receives it. No checkout and no prices. A flagpole on that list does not ask for a height or a price.
+- [Home](index.html): Company, services, door builder, and contact. The door builder is the door quote.
 - [Flagpoles](flagpoles.html): Flagpole photos and the flagpole quote form.
-- [Start a quote](start.html): Contact, the standard door facts, and both quote forms.
+- [Send a quote request](start.html#manual): A short quote request, plus the flagpole form. A door quote still starts in the door builder.
 - [Agent brief](llms.txt): This file.

@@ -22,7 +22,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="images/crew-hero-enhanced.jpg" media="(max-width: 1023px)">
   <link rel="preload" as="image" href="images/crew-hero-desktop.jpg" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="styles.css?v=cc15">
+  <link rel="stylesheet" href="styles.css?v=cc16">
   <link rel="stylesheet" href="door-preview.css?v=viz2">
   <link rel="stylesheet" href="door-visualize.css?v=viz2">
   <script type="application/ld+json">
@@ -42,7 +42,7 @@
     }
   }
   </script>
-  <script src="track.js?v=tr4" defer></script>
+  <script src="track.js?v=tr5" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -72,7 +72,6 @@
       <nav class="nav" id="site-nav" aria-label="Main">
         <ul class="nav__list">
           <li><a href="#services">Services</a></li>
-          <li><a href="shop.html">Shop</a></li>
           <li><a href="flagpoles.html">Flagpoles</a></li>
           <li><a href="#builder" data-to-builder>Door Builder</a></li>
           <li><a href="#about">About</a></li>
@@ -103,7 +102,6 @@
   </header>
 
   <main id="main">
-    <p class="shop-list-note" id="shop-list-note" hidden></p>
     <!-- OPENING: crew photo, then the door builder -->
     <section class="hb" id="builder" aria-labelledby="hero-title">
       <div class="hb__band">
@@ -305,6 +303,7 @@
               </div>
             </div>
           </div>
+          <p class="builder-manual"><a href="start.html#manual">Prefer not to use the builder? Send a quote request</a></p>
         </div>
 
         <aside class="dp-panel builder-flow__aside" data-door-preview="a" data-header=".header" aria-label="Door preview">
@@ -347,7 +346,7 @@
         <div class="section__head">
           <p class="eyebrow">Specialty areas</p>
           <h2 id="services-title">Doors, frames, hardware &amp; more</h2>
-          <p class="section__lead">From storefront entrances to safe room doors to the flagpole out front, we take care of the whole opening for new construction and remodeling projects. <a href="shop.html">Look through the shop</a>.</p>
+          <p class="section__lead">From storefront entrances to safe room doors to the flagpole out front, we take care of the whole opening for new construction and remodeling projects. <a href="#builder" data-to-builder>Build your door</a>.</p>
         </div>
         <div class="services">
           <article class="svc">
@@ -395,7 +394,7 @@
             <div class="svc__body">
               <h3>Flagpoles</h3>
               <p><span class="svc__full">Proudly display your American and state flags. Our professionally installed flagpoles are built to stand tall through the toughest weather conditions.</span><span class="svc__short">Professionally installed flagpoles built to stand tall through the toughest weather.</span></p>
-              <a class="svc__link" href="flagpoles.html">Request a quote <span aria-hidden="true">&rarr;</span></a>
+              <a class="svc__link" href="flagpoles.html#quote">Request a quote <span aria-hidden="true">&rarr;</span></a>
             </div>
           </article>
         </div>
@@ -596,14 +595,12 @@
         <h4>Quick links</h4>
         <ul>
           <li><a href="#services">Services</a></li>
-          <li><a href="shop.html">Shop</a></li>
           <li><a href="flagpoles.html">Flagpoles</a></li>
           <li><a href="#builder" data-to-builder>Door Builder</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#projects">Projects</a></li>
           <li><a href="#builder" data-to-builder>Request a door quote</a></li>
           <li><a href="flagpoles.html#quote">Request a flagpole quote</a></li>
-          <li><a href="start.html">Start a quote</a></li>
           <li><a href="llms.txt">Agent brief</a></li>
         </ul>
       </div>
@@ -681,7 +678,7 @@
   <script src="builder-rules.js?v=viz2"></script>
   <script src="door-spec.js?v=spec3"></script>
   <script src="code-checks.js?v=cc2"></script>
-  <script src="app.js?v=cc8"></script>
+  <script src="app.js?v=cc9"></script>
   <script src="chat-place.js?v=cp2"></script>
   <script src="door-visualize.js?v=viz2"></script>
 </body>

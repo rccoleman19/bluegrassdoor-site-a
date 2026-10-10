@@ -1,5 +1,5 @@
 /* Run: node smoke-check.js
-   Custom size, required hardware on Recommend for me, and the deadbolt/panic message.
+   Custom size, required hardware on Recommend for me, and the short quote request.
    No network and no quote request row. */
 "use strict";
 
@@ -43,8 +43,8 @@ function checkRules() {
   var page = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   if (S.customOk(tiny) || S.isValid(tiny)) fail("custom size", "5 by 5 was accepted");
   else if (!S.customOk(ok) || !S.isValid(ok)) fail("custom size", "36 by 84 was rejected");
-  else if (app.indexOf("S.customOk(state)") === -1 || app.indexOf("size-err") === -1) fail("custom size", "builder does not block Next on the size error");
-  else if (page.indexOf('id="size-err"') === -1) fail("custom size", "inline error is missing");
+  else if (app.indexOf("S.customOk(state)") === -1 || app.indexOf("size-err") === -1 || app.indexOf("rangeOverflow") === -1) fail("custom size", "builder does not block Next on the size error");
+  else if (page.indexOf('id="size-err"') === -1 || page.indexOf("Enter a width and a height from 12 to 240 inches.") === -1) fail("custom size", "inline error is missing");
   else pass("custom size 12 to 240 blocks Next");
 
   var fire = hardwareLine(S, R, { type: "fire", material: "steel", size: "single", hardware: ["Recommend for me"], cw: "", ch: "", qty: 1, loc: "" });
@@ -135,22 +135,10 @@ function checkStart() {
   var calls = [];
   var body = el("body");
   function add(node) { body.appendChild(node); return node; }
-  ["year", "door-custom", "door-hw-err", "door-custom-err", "door-name", "door-phone", "door-email", "door-reach", "door-reach-err", "door-width", "door-height", "shop-list-note"].forEach(function (id) { add(el("div", id)); });
-  var typeEl = add(el("select", "door-type"));
-  var matEl = add(el("select", "door-material"));
-  var steel = el("option");
-  steel.value = "steel";
-  steel.setAttribute = function (k, v) { steel.attrs = steel.attrs || {}; steel.attrs[k] = v; };
-  steel.getAttribute = function (k) { return steel.attrs ? steel.attrs[k] : null; };
-  steel.setAttribute("data-for", "hollow fire swing");
-  matEl.appendChild(steel);
-  matEl.selectedOptions = [steel];
-  add(el("select", "door-size"));
-  var std = add(el("fieldset", "door-hw-std"));
-  var barn = add(el("fieldset", "door-hw-barn"));
-  var dead = el("input"); dead.value = "Deadbolt"; std.appendChild(dead);
-  var panic = el("input"); panic.value = "Panic / exit device"; std.appendChild(panic);
+  ["year", "door-name", "door-company", "door-phone", "door-email", "door-reach", "door-reach-err", "door-addr", "door-when", "door-notes", "door-send-err", "door-ask", "door-done", "door-ref"].forEach(function (id) { add(el("div", id)); });
   var form = add(el("form", "door-form"));
+  var submit = add(el("button", "door-submit"));
+  submit.textContent = "Send my quote request";
   add(el("form", "flagpole-form"));
   var doc = {
     body: body,
@@ -160,34 +148,56 @@ function checkStart() {
   };
   ctx.document = doc;
   ctx.Date = Date;
-  ctx.sessionStorage = { getItem: function () { return null; }, setItem: function () {} };
-  ctx.fetch = function () { calls.push(1); return Promise.resolve({ ok: true, status: 201 }); };
+  ctx.Uint32Array = Uint32Array;
+  ctx.setTimeout = function () { return 1; };
+  ctx.clearTimeout = function () {};
+  ctx.crypto = { getRandomValues: function (buf) { var i; for (i = 0; i < buf.length; i++) buf[i] = i + 3; return buf; } };
+  ctx.fetch = function (url, init) {
+    calls.push(init && init.body ? String(init.body) : "");
+    var res = { ok: true, status: 201 };
+    return { then: function (fn) { fn(res); return { catch: function () {} }; } };
+  };
   ctx.navigator = { userAgent: "check" };
   ctx.location = { href: "http://local/start.html" };
-  typeEl.value = "hollow";
-  matEl.value = "steel";
-  ctx.document.getElementById("door-size").value = "single";
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "start.js"), "utf8"), ctx, { filename: "start.js" });
+  (form._ev.submit || []).forEach(function (fn) { fn({ preventDefault: function () {} }); });
+  if (calls.length) { fail("short quote", "an empty form was sent"); return; }
   ctx.document.getElementById("door-name").value = "Ada";
   ctx.document.getElementById("door-phone").value = "5550100";
-  vm.runInContext(fs.readFileSync(path.join(ROOT, "start.js"), "utf8"), ctx, { filename: "start.js" });
-  dead.checked = true;
-  panic.checked = true;
-  (panic._ev.change || []).forEach(function (fn) { fn({}); });
-  var err = ctx.document.getElementById("door-hw-err");
-  var say = ctx.BuilderRules.byId("panic-plus-deadbolt").say;
-  if (!panic.checked || !dead.checked) fail("deadbolt panic", "a box was cleared");
-  else if (err.textContent !== say || !err.classList.contains("is-on")) fail("deadbolt panic", err.textContent);
-  else {
-    (form._ev.submit || []).forEach(function (fn) { fn({ preventDefault: function () {} }); });
-    if (calls.length) fail("deadbolt panic", "the form still sent");
-    else if (!panic.checked) fail("deadbolt panic", "Panic was dropped on submit");
-    else if (err.textContent !== say) fail("deadbolt panic", "submit replaced the message");
-    else pass("Deadbolt and Panic keep the builder conflict message");
-  }
+  ctx.document.getElementById("door-notes").value = "Front opening";
+  (form._ev.submit || []).forEach(function (fn) { fn({ preventDefault: function () {} }); });
+  if (calls.length !== 1) { fail("short quote", "the form did not send"); return; }
+  var row;
+  try { row = JSON.parse(calls[0]); } catch (err) { fail("short quote", "the body was not JSON"); return; }
+  if (!row || row.notes.indexOf("Quote request sent without the door builder.") !== 0) fail("short quote", row && row.notes);
+  else if (!row.doors || row.doors[0].type !== "Quote request" || row.door_count !== 1) fail("short quote", "door row");
+  else if (row.name !== "Ada" || String(row.phone).indexOf("555") === -1) fail("short quote", "contact");
+  else if (row.notes.indexOf("Front opening") === -1) fail("short quote", "notes dropped");
+  else if (ctx.document.getElementById("door-ask").hidden !== true) fail("short quote", "form stayed open");
+  else pass("short quote request sends without the door builder");
+}
+
+function checkLinks() {
+  var pages = ["index.html", "start.html", "flagpoles.html", "request.html", "llms.txt"];
+  var bad = [];
+  pages.forEach(function (name) {
+    var text = fs.readFileSync(path.join(ROOT, name), "utf8");
+    if (text.indexOf("shop.html") !== -1) bad.push(name);
+  });
+  var home = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  var start = fs.readFileSync(path.join(ROOT, "start.html"), "utf8");
+  var shop = fs.readFileSync(path.join(ROOT, "shop.html"), "utf8");
+  var manual = (home.match(/Prefer not to use the builder\? Send a quote request/g) || []).length;
+  if (bad.length) fail("shop links", bad.join(", "));
+  else if (manual !== 1 || home.indexOf('href="start.html#manual"') === -1) fail("manual link", "expected one secondary link");
+  else if (start.indexOf('id="manual"') === -1 || start.indexOf('id="flagpole-form"') === -1) fail("manual page", "form missing");
+  else if (shop.indexOf("index.html#builder") === -1 || shop.indexOf("flagpoles.html") === -1) fail("shop redirect", "missing destination");
+  else pass("shop page is a redirect and quote links stay on the builder");
 }
 
 checkRules();
 checkStart();
+checkLinks();
 if (fails.length) {
   console.log(fails.length + " failed");
   process.exit(1);

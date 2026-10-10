@@ -29,28 +29,6 @@
   function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 8); }
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
-  function showShopList() {
-    var el = $("#shop-list-note");
-    if (!el) return;
-    var n = 0;
-    try {
-      var raw = sessionStorage.getItem("bgd-shop-quote");
-      var parsed = raw ? JSON.parse(raw) : [];
-      if (parsed && parsed.length) {
-        for (var i = 0; i < parsed.length; i++) {
-          if (!parsed[i] || !parsed[i].label) continue;
-          var q = parseInt(parsed[i].qty, 10);
-          n += isFinite(q) && q > 0 ? q : 1;
-        }
-      }
-    } catch (err) { n = 0; }
-    if (!n) { el.hidden = true; el.textContent = ""; return; }
-    var word = n === 1 ? "1 item" : n + " items";
-    el.innerHTML = "You have " + word + " in your shop quote list. <a href=\"shop.html#quote\">Send them</a>";
-    el.hidden = false;
-  }
-  showShopList();
-
   /* ---------- Sticky call bar (phones & tablets): shown once the homepage buttons scroll away, never over the door builder or the footer ---------- */
   var callbar = $(".callbar"), callGo = $("#callbar-go");
   var chatWrap = $("#chat");
@@ -249,8 +227,16 @@
     btnSave.disabled = !S.isValid(state);
     var sizeErr = $("#size-err");
     if (sizeErr) {
-      var dirty = String(state.cw || "").trim() !== "" || String(state.ch || "").trim() !== "";
-      sizeErr.classList.toggle("is-on", state.size === "custom" && dirty && !S.customOk(state));
+      var sizeBad = [sizeW, sizeH].some(function (el) {
+        if (!el) return false;
+        var v = el.validity;
+        if (v && (v.badInput || v.rangeOverflow || v.rangeUnderflow)) return true;
+        var raw = String(el.value || "").trim();
+        if (!raw) return false;
+        var n = Math.round(+raw);
+        return !(n >= 12 && n <= 240);
+      });
+      sizeErr.classList.toggle("is-on", state.size === "custom" && sizeBad);
     }
     showNotice();
   }
